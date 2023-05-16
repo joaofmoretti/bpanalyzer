@@ -1,0 +1,54 @@
+<html>
+
+<head>
+    <title>Resultado Prospeção</title>
+    <link rel="stylesheet" href="styleforms.css" />
+	<link rel="stylesheet" href="styleasteroid.css" /> 
+	<script src="asteroid-alert.js"></script>
+    <script src="form.js"></script>
+    
+
+</head>
+
+<body onload="Javascript:carregaCliente()">
+<br><br><br><br>
+    <div class="login">
+        <h1>Dados do cliente</h1>
+        <form >
+            <label for="nome">Razão Social:</label>
+            <input type="text" name="nome" id="nome" placeholder="Nome" required="required" />
+
+            <label for="cnpj">CNPJ:</label><br>
+            <input type="text" class="formsexo" name="cnpj" id="cnpj" placeholder="CNPJ" required="required" />
+            <br>
+
+            <label for="Cidade">Cidade:</label><br>
+            <input class="formtelefone" type="text" name="cidade" id="cidade" placeholder="telefone" required="required" width="50%" />
+            <br>
+
+            <label for="estado">Estado:</label><br>
+            <input class="formtelefone" type="text" name="estado" id="estado" placeholder="telefone" required="required" width="50%" />
+            <br>
+
+            <label for="porte">Porte:</label><br>
+            <input class="formtelefone" type="text" name="porte" id="porte" placeholder="porte" required="required" width="50%" />
+            <br>
+
+            <label for="endereco">Atividade Economica:</label>
+            <textarea name="atividadeEconomia" id="atividadeEconomia" cols="65" rows="5" />
+            </textarea>
+
+        </form>
+            
+        <h1>Quadro Societário</h1>
+        <br>
+        <div id="socios" name="socios"></div> 
+            
+ 
+
+    </div>
+    
+
+</body>
+
+</html>
