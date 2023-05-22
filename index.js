@@ -44,8 +44,8 @@ const options = {
   delay: 500,
   headers: {},
   maxDepth: 3,
-  maxUrls: 10,
-  maxWait: 10000,
+  maxUrls: 1,
+  maxWait: 5000,
   recursive: true,
   probe: true,
   proxy: false,
@@ -57,12 +57,15 @@ const options = {
 };
 
 const wappalyzer = new Wappalyzer(options)
+wappalyzer.init()
 
-app.get('/dadosGoverno/', (req, res) => {
-  
-  res.end(JSON.stringify(dadosGoverno));
+const parseTitle = (body) => {
+  let match = body.match(/<title( [^>]*)?>(.*)<[/]title>/i) // regular expression to parse contents of the <title> tag
+  if (!match || typeof match[1] !== 'string')
+    throw new Error('Unable to parse the title tag')
+  return match[1]
+}
 
-});
 
 app.get('/login/', (req, res) => {
     res.sendFile(__dirname + '/views/login.html');
@@ -72,17 +75,28 @@ app.get('/form/styleforms.css', (req, res) => {
     res.sendFile(__dirname + '\\views\\styleforms.css'); 
 });
 
-app.get('/form/styleasteroid.css', (req, res) => {
-    res.sendFile(__dirname + '\\views\\styleasteroid.css'); 
+app.get('/styleapp.css', (req, res) => {
+    res.sendFile(__dirname + '\\views\\styleapp.css'); 
+});
+app.get('/scriptapp.js', (req, res) => {
+  res.sendFile(__dirname + '\\views\\scriptapp.js'); 
+});
+
+app.get('/bishop-94180.mp4', (req, res) => {
+  res.sendFile(__dirname + '\\views\\bishop-94180.mp4'); 
 });
 
 
+app.get('/app/', (req, res) => {
+  
+    res.sendFile(__dirname + '\\views\\app.html');
+});
 
 app.get('/form/form.js', (req, res) => {
     res.sendFile(__dirname + '\\views\\form.js'); 
 });
 
-app.get('/login/totvs-logob.png', (req, res) => {
+app.get('/totvs-logob.png', (req, res) => {
     res.sendFile(__dirname + '\\views\\totvs-logob.png'); 
 });
 
@@ -127,20 +141,20 @@ app.get('/form/', (req, res) => {
 function prospectar(url) {
     console.log("prospectando")
    let retorno = fetchRegistroBr(url);
-   
-  
-    
+
  
 }    
 
+app.post('/prospectaSite/', encodeUrl, (req, res) => {
+  
+  
+  url = req.body.busca;
+  console.log(req.body);
 
-async function wappalyzerCliente(url) {
-  
-  
-  
+  console.log("propsectaSite URL " + url);
   
   try {
-    await wappalyzer.init()
+    
 
     // Optionally set additional request headers
     const headers = {}
@@ -150,15 +164,31 @@ async function wappalyzerCliente(url) {
       local: {}
       
     }
-
-    const site = await wappalyzer.open(url, headers, storage)
+    console.log("url " + url);
+    const site = wappalyzer.open(url, headers, storage)
 
     // Optionally capture and output errors
-    site.on('error', console.error)
+    //site.on('error', console.error)
 
-    const results = await site.analyze()
+    site.then((a) => {
+      const results = a.analyze()
+      results.then((obj) => {
+        let titulo = "Titulo da página não encotrado";
+        fetch(url)
+          .then(resp => resp.text()) // parse response's body as text
+          .then(body => parseTitle(body)) // extract <title> from body
+          .then(title => {titulo = title}) // send the result back
+          .catch(e => res.status(500).end(e.message)) // catch possible errors
+          obj.title = titulo;
+        console.log(a);
+       res.status(201). send(obj);
+      }) 
+    })
+    
 
-    console.log(JSON.stringify(results, null, 2))
+    
+
+    //console.log(JSON.stringify(results, null, 2))
   } catch (error) {
     console.error(error)
   }
@@ -166,8 +196,70 @@ async function wappalyzerCliente(url) {
   
 
 
-  await wappalyzer.destroy()
-}
+  
+})
+
+
+app.post('/dadosGoverno/', encodeUrl,   (req, res) => {
+
+
+  var busca = req.body.busca;;
+
+  console.log("busca " + busca);
+
+  //let urlHost = new URL(busca);
+
+  let urlHost = busca;
+
+  let result = {}
+
+ 
+    //console.log(registroBR_URL + '/' + urlHost);
+    fetch(registroBR_URL + '/' +  urlHost)
+      .then((response) => {
+        if (!response.ok) return resolve(result)
+        return response.json();
+      }).then((jsonData) => {
+        result = jsonData
+		//console.log(result);		
+		let cnpj = [result.entities[0].publicIds[0].identifier];
+		let num = cnpj[0].replace(/\D/g,'').substring(0,14);
+
+    
+    
+		
+		if (num.length >= 14)  {
+     // let numeroCNPJ = resultsArray[0].replace(/\D/g,'').substring(0,14);
+      //cnpjValue = cnpjValue.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
+      
+           
+      let dados = null;
+      let urlGover = 'https://publica.cnpj.ws/cnpj/' + num.toString();
+      console.log("urlGover " + urlGover);
+      fetch(urlGover)
+      // Tratamento do sucesso
+      .then(response => response.json())  // converter para json
+      .then(json => {res.send(json);})    //imprimir dados no console
+      .catch(err => console.log('Erro de solicitação', err));
+			
+		} else {
+			
+		}	
+        //resolve(result)
+      }).catch((err) => {
+		    console.log("erro da parada");  
+        console.log(err);
+		
+		
+      });
+  
+})
+
+
+
+
+
+
 
 
 async function getData(inputAddress) {
