@@ -450,8 +450,9 @@ body.light-mode .video-bg:before {
   width: 100%;
   justify-content: space-between;
   border-radius: 14px;
-  border-color: white;
-  border-inline-color: white;
+  background-color: #0055bd;
+  background-image: url("https://www.transparenttextures.com/patterns/cubes.png");
+  
   padding: 20px 40px;
 }
 
@@ -820,6 +821,25 @@ body.light-mode .video-bg:before {
   flex-wrap: wrap;
   width: calc(100% + 20px);
 }
+
+.app-chart {
+  display: flex;
+  flex-direction: column;
+  width: calc(50%);
+  font-size: 16px;
+  background-color: var(--content-bg);
+  border-radius: 14px;
+  border: 1px solid var(--theme-bg-color);
+  padding: 20px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+.app-chart:hover {
+  transform: scale(1.02);
+  background-color: var(--theme-bg-color);
+}
+
+
 
 .app-card {
   display: flex;

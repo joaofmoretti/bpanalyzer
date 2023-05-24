@@ -18,6 +18,7 @@ app.use(express.static(__dirname + '/views/stylelogin.css'));
 app.use(express.static(__dirname + '/views/totvs-logob.png'));
 
 const registroBR_URL = 'https://rdap.registro.br/domain'
+let tituloPagina = "Titulo da página não encotrado";
 
 const isValidUrl = urlString=> {
     var urlPattern = new RegExp('^(https?:\\/\\/)?'+ // validate protocol
@@ -60,9 +61,20 @@ const wappalyzer = new Wappalyzer(options)
 wappalyzer.init()
 
 const parseTitle = (body) => {
-  let match = body.match(/<title( [^>]*)?>(.*)<[/]title>/i) // regular expression to parse contents of the <title> tag
-  if (!match || typeof match[1] !== 'string')
+  let match = body.match(/<title>([^<]*)<\/title>/)  // regular expression to parse contents of the <title> tag
+
+  if (!match || typeof match[1] !== 'string') {
+    match = body.match(/<title data-react-helmet="true">([^<]*)<\/title>/)
+  }  
+
+
+
+  if (!match || typeof match[1] !== 'string') {
+    console.log('Unable to parse the title tag');
     throw new Error('Unable to parse the title tag')
+  }
+  tituloPagina = match[1];
+  console.log('match[1] ' + match[1])
   return match[1]
 }
 
@@ -82,8 +94,16 @@ app.get('/scriptapp.js', (req, res) => {
   res.sendFile(__dirname + '\\views\\scriptapp.js'); 
 });
 
+app.get('/apexcharts.min.js', (req, res) => {
+  res.sendFile(__dirname + '\\views\\apexcharts.min.js'); 
+});
+
 app.get('/bishop-94180.mp4', (req, res) => {
   res.sendFile(__dirname + '\\views\\bishop-94180.mp4'); 
+});
+
+app.get('/icon_38.png', (req, res) => {
+  res.sendFile(__dirname + '\\views\\icon_38.png'); 
 });
 
 
@@ -98,6 +118,22 @@ app.get('/form/form.js', (req, res) => {
 
 app.get('/totvs-logob.png', (req, res) => {
     res.sendFile(__dirname + '\\views\\totvs-logob.png'); 
+});
+
+app.get('/VTEX.svg', (req, res) => {
+  res.sendFile(__dirname + '\\views\\VTEX.svg'); 
+});
+
+app.get('/Tail.svg', (req, res) => {
+  res.sendFile(__dirname + '\\views\\Tail.svg'); 
+});
+
+app.get('/Shopify.svg', (req, res) => {
+  res.sendFile(__dirname + '\\views\\Shopify.svg'); 
+});
+
+app.get('/RDStation.png', (req, res) => {
+  res.sendFile(__dirname + '\\views\\RDStation.png'); 
 });
 
 app.listen(5001, () => {
@@ -173,15 +209,23 @@ app.post('/prospectaSite/', encodeUrl, (req, res) => {
     site.then((a) => {
       const results = a.analyze()
       results.then((obj) => {
-        let titulo = "Titulo da página não encotrado";
+        
         fetch(url)
           .then(resp => resp.text()) // parse response's body as text
           .then(body => parseTitle(body)) // extract <title> from body
-          .then(title => {titulo = title}) // send the result back
-          .catch(e => res.status(500).end(e.message)) // catch possible errors
-          obj.title = titulo;
-        console.log(a);
-       res.status(201). send(obj);
+          .then(title => { obj.title = tituloPagina;
+                           obj.totvsOffers = geraOfertasTOTVS(obj);
+                           obj.ecommerce = geraEcommerce(obj).toString() ;
+                          res.status(201). send(obj);
+                         }) // send the result back
+          .catch(e => { obj.title = tituloPagina;
+            obj.totvsOffers = geraOfertasTOTVS(obj);
+            obj.ecommerce = geraEcommerce(obj).toString() ;
+            res.status(201). send(obj);
+           }) // catch possible errors
+         
+       
+       
       }) 
     })
     
@@ -202,37 +246,18 @@ app.post('/prospectaSite/', encodeUrl, (req, res) => {
 
 app.post('/dadosGoverno/', encodeUrl,   (req, res) => {
 
-
   var busca = req.body.busca;;
-
-  console.log("busca " + busca);
-
-  //let urlHost = new URL(busca);
-
-  let urlHost = busca;
-
+  let urlHost = new URL(busca);
   let result = {}
 
- 
-    //console.log(registroBR_URL + '/' + urlHost);
-    fetch(registroBR_URL + '/' +  urlHost)
-      .then((response) => {
-        if (!response.ok) return resolve(result)
-        return response.json();
-      }).then((jsonData) => {
-        result = jsonData
-		//console.log(result);		
-		let cnpj = [result.entities[0].publicIds[0].identifier];
-		let num = cnpj[0].replace(/\D/g,'').substring(0,14);
+  let registro = fetchRegistroBr(busca);
 
-    
-    
-		
+  registro.then((result) => {
+
+    let cnpj = [result.entities[0].publicIds[0].identifier];
+	  let num = cnpj[0].replace(/\D/g,'').substring(0,14);
 		if (num.length >= 14)  {
-     // let numeroCNPJ = resultsArray[0].replace(/\D/g,'').substring(0,14);
-      //cnpjValue = cnpjValue.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
-      
-           
+  
       let dados = null;
       let urlGover = 'https://publica.cnpj.ws/cnpj/' + num.toString();
       console.log("urlGover " + urlGover);
@@ -242,33 +267,10 @@ app.post('/dadosGoverno/', encodeUrl,   (req, res) => {
       .then(json => {res.send(json);})    //imprimir dados no console
       .catch(err => console.log('Erro de solicitação', err));
 			
-		} else {
-			
-		}	
-        //resolve(result)
-      }).catch((err) => {
-		    console.log("erro da parada");  
-        console.log(err);
-		
-		
-      });
-  
+		}
+  });
 })
-
-
-
-
-
-
-
-
-async function getData(inputAddress) {
-    const url = registroBR_URL + '/' + inputAddress;
-    const response = await fetch(url);
-    const jsonResponse = await response.json();
-    console.log(jsonResponse);
-  } 
-
+  
 
 async function fetchRegistroBr(inputAddress) {
 
@@ -284,19 +286,12 @@ async function fetchRegistroBr(inputAddress) {
         return response.json();
       }).then((jsonData) => {
         result = jsonData
-		console.log(result);		
-		let cnpj = [result.entities[0].publicIds[0].identifier];
-		let num = cnpj[0].replace(/\D/g,'').substring(0,14);
-		
-		if (num.length >= 14)  {
-		
-			extractsCNPJ(cnpj);
-		} else {
-			
-		}	
-        resolve(result)
+        console.log(result);		
+        let cnpj = [result.entities[0].publicIds[0].identifier];
+        let num = cnpj[0].replace(/\D/g,'').substring(0,14);
+		    resolve(result)
       }).catch((err) => {
-		console.log("erro da parada");  
+		    console.log("erro da parada");  
         console.log(err);
 		
 		
@@ -304,9 +299,31 @@ async function fetchRegistroBr(inputAddress) {
   })
 }
 
+app.post('/trafego/', encodeUrl,   (req, res) => {
 
-const SIMILARWEB_BASE_URL = 'https://data.similarweb.com/api/v1/data?domain='
-const corsServer = 'https://cors.smlpoints.workers.dev'
+   const SIMILARWEB_BASE_URL = 'https://data.similarweb.com/api/v1/data?domain='
+   const corsServer = 'https://cors.smlpoints.workers.dev'
+
+  var busca = req.body.busca;;
+  let urlHost = new URL(busca);
+  let result = {}
+  return new Promise((resolve, reject) => {
+    fetch(corsServer +'/?' + SIMILARWEB_BASE_URL + urlHost)
+      .then((response) => {
+        if (!response.ok) return resolve(result)
+        return response.json();
+      }).then((jsonData) => {
+        result = jsonData
+        res.send(jsonData);
+        resolve(result)
+      }).catch((err) => {
+        console.log(err);
+      });  
+
+})  
+})
+
+
 
 
 function fetchSimilarWeb(inputAddress) {
@@ -409,7 +426,7 @@ function populadadosGoverno(json) {
     console.log("Dados governo");
     console.log(json);
     dadosGoverno = json;
-    respostaGlobal.redirect('/form/');
+    //respostaGlobal.redirect('/form/');
  
     
    
@@ -432,3 +449,43 @@ function populadadosGoverno(json) {
     }	*/
         
 }
+
+function geraOfertasTOTVS(obj) {
+  let totvsSlurs = ['vtex', 'rd-station', 'tail' ,'shopify'];
+  let totvsOffers = [];
+
+
+  for (var icont=0; icont < obj.technologies.length; icont++) {
+
+    if (totvsSlurs.includes(obj.technologies[icont].slug)) {
+
+      totvsOffers.push(obj.technologies[icont]);
+    }
+
+  }
+
+  return totvsOffers;
+}
+
+function geraEcommerce(obj) {
+  let totvsSlurs = ['vtex', 'rd-station', 'tail' ,'shopify'];
+  let ecoms = [];
+
+
+  for (var icont=0; icont < obj.technologies.length; icont++) {
+
+    if (obj.technologies[icont].categories[0].id == 6) {
+
+      ecoms.push(obj.technologies[icont].name);
+        
+    }
+
+  }
+
+  if (ecoms.length == 0) {
+    ecoms.push("Não detectada");
+  }
+
+  return ecoms;
+}
+
