@@ -32,6 +32,11 @@ return !!urlPattern.test(urlString);
 
 let respostaGlobal;
 let dadosGoverno;
+let pagina = {
+               "url" : "url",
+               "title": "title",
+               "cnpj" : ""
+}
 
 let router = express.Router();
 app.use("/form/",router);
@@ -60,7 +65,7 @@ const options = {
 const wappalyzer = new Wappalyzer(options)
 wappalyzer.init()
 
-const parseTitle = (body) => {
+const parsePage = (body, url) => {
   let match = body.match(/<title>([^<]*)<\/title>/)  // regular expression to parse contents of the <title> tag
 
   if (!match || typeof match[1] !== 'string') {
@@ -75,7 +80,23 @@ const parseTitle = (body) => {
   }
   tituloPagina = match[1];
   console.log('match[1] ' + match[1])
-  return match[1]
+
+  let cnpj = ''
+  try {
+    cnpj = body.match(/\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}/)[0];
+  } catch (err) {}
+  if (cnpj != '') {
+    console.log('cnpjX ' + cnpj);
+    
+  } else {
+    console.log('cnpjX nao achou');
+  }
+
+  pagina.url = url
+  pagina.title = tituloPagina
+  pagina.cnpj = cnpj
+
+  return pagina
 }
 
 
@@ -212,8 +233,8 @@ app.post('/prospectaSite/', encodeUrl, (req, res) => {
         
         fetch(url)
           .then(resp => resp.text()) // parse response's body as text
-          .then(body => parseTitle(body)) // extract <title> from body
-          .then(title => { obj.title = tituloPagina;
+          .then(body => parsePage(body, url)) // extract <title> from body
+          .then(page => { obj.title = page.title;
                            obj.totvsOffers = geraOfertasTOTVS(obj);
                            obj.ecommerce = geraEcommerce(obj).toString() ;
                           res.status(201). send(obj);
@@ -248,27 +269,64 @@ app.post('/dadosGoverno/', encodeUrl,   (req, res) => {
 
   var busca = req.body.busca;;
   let urlHost = new URL(busca);
+  let cnpjEncontrado = ''
+  let num = '';
   let result = {}
+  console.log("Pagina !!!!!!!!!!!!!!!!!!!!!!!1");
+  let pageCNPJ = fetch(url)
+          .then(resp => resp.text()) // parse response's body as text
+          .then(body => parsePage(body, url)) // extract <title> from body
+          .then(pagina => { 
+            if (pagina != null && pagina.cnpj != "") {
+              cnpjEncontrado = pagina.cnpj;
+              num = cnpjEncontrado.replace(/\D/g,'').substring(0,14);
+              if (num.length >= 14)  {
+                  let urlGover = 'https://publica.cnpj.ws/cnpj/' + num.toString();
+                console.log("urlGover sem passar pelo RegistroBR" + urlGover);
+                fetch(urlGover)
+                // Tratamento do sucesso
+                .then(response => response.json())  // converter para json
+                .then(json => {res.send(json); })    //imprimir dados no console
+                .catch(err => console.log('Erro de solicitação', err));
+                
+              }
+          
+            }
 
-  let registro = fetchRegistroBr(busca);
+            
 
-  registro.then((result) => {
+          }) // send the result back
+          .catch(e => { console.log(e)})
 
-    let cnpj = [result.entities[0].publicIds[0].identifier];
-	  let num = cnpj[0].replace(/\D/g,'').substring(0,14);
-		if (num.length >= 14)  {
-  
-      let dados = null;
-      let urlGover = 'https://publica.cnpj.ws/cnpj/' + num.toString();
-      console.log("urlGover " + urlGover);
-      fetch(urlGover)
-      // Tratamento do sucesso
-      .then(response => response.json())  // converter para json
-      .then(json => {res.send(json);})    //imprimir dados no console
-      .catch(err => console.log('Erro de solicitação', err));
-			
-		}
-  });
+
+  pageCNPJ.then((result) => {
+
+      console.log('cnpjEncontrado ' + cnpjEncontrado)
+      if (cnpjEncontrado != '') return;
+      let registro = fetchRegistroBr(busca);
+      registro.then((result) => {
+    
+        try{
+          cnpjEncontrado = [result.entities[0].publicIds[0].identifier];
+          num = cnpjEncontrado[0].replace(/\D/g,'').substring(0,14);
+        } catch (erro) {
+          console.log("Não foi possível pegar o CNPJ do domímio");
+          console.log(result)
+        }  
+        if (num.length >= 14)  {
+      
+          let dados = null;
+          let urlGover = 'https://publica.cnpj.ws/cnpj/' + num.toString();
+          console.log("urlGover " + urlGover);
+          fetch(urlGover)
+          // Tratamento do sucesso
+          .then(response => response.json())  // converter para json
+          .then(json => {res.send(json);})    //imprimir dados no console
+          .catch(err => console.log('Erro de solicitação', err));
+          
+        }
+      });
+    })    
 })
   
 

@@ -504,7 +504,7 @@ body.light-mode .video-bg:before {
   color: #ebecec;
   display: -webkit-box;
   -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
+  
   overflow: hidden;
   text-overflow: ellipsis;
 }

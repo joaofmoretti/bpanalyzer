@@ -139,7 +139,7 @@ let urlaBusca = document.getElementById('busca');
             $("#titulopagina")[0].innerText = data.title;
 
             $("#resultado")[0].innerText = 'Resultado do Teste: Realizado com sucesso';
-            $("#endereço")[0].innerText = 'Endereco: ' + document.getElementById('busca').value; 
+           // $("#endereço")[0].innerText = 'Endereco: ' + document.getElementById('busca').value; 
             $("#tecnologias")[0].innerText = 'Tecnologias Detectadas: ' + data.technologies.length; 
             $("#contatech")[0].innerText = data.technologies.length;
             $("#ecommerce")[0].innerText = 'Plataforma E-Commerce: ' + data.ecommerce; 
@@ -203,6 +203,7 @@ function carregaCliente() {
         $("#estado")[0].innerText = clienteAtual.estabelecimento.estado.nome;
         $("#atividade")[0].innerText = clienteAtual.estabelecimento.atividade_principal.descricao;
         $("#porte")[0].innerText = clienteAtual.porte.descricao;
+        $("#capital")[0].innerText = clienteAtual.capital_social.toLocaleString('pt-br', {minimumFractionDigits: 2});
 
 
 
@@ -268,10 +269,10 @@ function carregaTrafego() {
       result = jsonData
 			
       document.getElementById("tituloSite").innerText=result.Title;  
-		document.getElementById("visitas").innerText=Math.ceil(result.Engagments.Visits).toLocaleString();
-		document.getElementById("taxa").innerText=(Number.parseFloat(result.Engagments.BounceRate)*100).toFixed(2) + '%';
-		document.getElementById("paginas").innerText=Number.parseFloat(result.Engagments.PagePerVisit).toFixed(2);
-		document.getElementById("tempo").innerText=Number.parseFloat((result.Engagments.TimeOnSite/60)).toFixed(2);
+      document.getElementById("visitas").innerText=Math.ceil(result.Engagments.Visits).toLocaleString();
+      document.getElementById("taxa").innerText=(Number.parseFloat(result.Engagments.BounceRate)*100).toFixed(2) + '%';
+      document.getElementById("paginas").innerText=Number.parseFloat(result.Engagments.PagePerVisit).toFixed(2);
+      document.getElementById("tempo").innerText=Number.parseFloat((result.Engagments.TimeOnSite/60)).toFixed(2);
 		let vals = [];
 		for (let icont=0; icont < Object.values(result.TrafficSources).length; icont++) {
 				if (Object.values(result.TrafficSources)[icont] == null) {
@@ -282,8 +283,7 @@ function carregaTrafego() {
 		}		
 		
 		
-		console.log("vals valores");
-		console.log(vals);
+
 		
 		var options = {
           series: vals,
@@ -311,10 +311,10 @@ function carregaTrafego() {
           breakpoint: 480,
           options: {
             chart: {
-              width: 200
+              width: 100
             },
             legend: {
-              position: 'bottom'
+              position: 'top'
             }
           }
         }]
