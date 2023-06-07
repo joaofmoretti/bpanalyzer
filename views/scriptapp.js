@@ -140,10 +140,10 @@ let urlaBusca = document.getElementById('busca');
 
             $("#resultado")[0].innerText = 'Resultado do Teste: Realizado com sucesso';
            // $("#endereço")[0].innerText = 'Endereco: ' + document.getElementById('busca').value; 
-            $("#tecnologias")[0].innerText = 'Tecnologias Detectadas: ' + data.technologies.length; 
+            $("#NumeroTecnologias")[0].innerText = 'Tecnologias Detectadas: ' + data.technologies.length; 
             $("#contatech")[0].innerText = data.technologies.length;
             $("#ecommerce")[0].innerText = 'Plataforma E-Commerce: ' + data.ecommerce; 
-            
+            montaPaginaTecnologias(data);
             
             $("#Carregando").hide();
 
@@ -156,7 +156,42 @@ let urlaBusca = document.getElementById('busca');
 
 }
 
+function montaPaginaTecnologias(data) {
 
+  var html = [];
+
+  html.push(
+    '<div class="content-section" ><div class="content-section-title">Tecnologias detectadas no site</div>',
+    ' <ul>');
+
+    for (let contech=0; contech < data.technologies.length; contech++) {
+
+      html.push(' <li class="adobe-product">');
+      html.push(' <div class="products">');
+      html.push('&nbsp');
+      html.push(data.technologies[contech].name);
+      html.push(' </div>');
+      html.push('<span class="status">');
+      html.push('<span class="status-circle green"></span>');
+      html.push(data.technologies[contech].categories[0].name);
+      html.push('</span>');
+      html.push('<span class="status">');
+      html.push(data.technologies[contech].description);
+      html.push('</span>');
+
+
+      html.push('<div class="button-wrapper">');
+      html.push('<button class="content-button status-button open">Site Oficial</button>');
+      
+      html.push('</div>');
+      html.push('</li>');
+    }
+
+    html.push('</ul></div>');
+    $("#tecnologias")[0].innerHTML = html.join("");
+
+
+}
 
 function buscaCliente() {
   return new Promise((resolve, reject) => {
@@ -295,7 +330,8 @@ function carregaTrafego() {
           pie: {
             startAngle: -90,
             endAngle: 90,
-            offsetY: 10
+            offsetY: 10,
+            size: '25%'
           }
         },
 		title: {
@@ -311,7 +347,8 @@ function carregaTrafego() {
           breakpoint: 480,
           options: {
             chart: {
-              width: 100
+             width: 40
+            
             },
             legend: {
               position: 'top'
@@ -321,8 +358,143 @@ function carregaTrafego() {
         };
 
         var chart = new ApexCharts(document.querySelector("#chart"), options);
-        chart.render();  
+        chart.render(); 
+        
+        
 
+        const map1 = new Map(Object.entries(result.EstimatedMonthlyVisits));
+        let data = [];
+       
+
+        Object.entries(result.EstimatedMonthlyVisits).map(obj => {
+          console.log(obj);
+          var obj = {
+                      x: obj[0],
+                      y: obj[1]
+                    }
+          data.push(obj);
+        }); 
+
+   
+
+        var options2 = {
+          series: [{
+          name: 'Acessos últimos 3 meses',
+          data: data
+        }],
+          chart: {
+          height: 150,
+          type: 'bar',
+        },
+        plotOptions: {
+          bar: {
+            horizontal: false,
+            columnWidth: '60%'
+          },
+        },
+        stroke: {
+          width: 0,
+        },
+        dataLabels: {
+          enabled: false
+        },
+        yaxis: {
+          labels: {
+            formatter: function(val) {
+              return val / 1000
+            }
+          }
+        },
+        fill: {
+          opacity: 1,
+        },
+        xaxis: {
+          type: 'datetime'
+        }
+        };
+
+        var options2 = {
+          series: [{
+          name: 'Visitas',
+          data: Object.values(result.EstimatedMonthlyVisits)
+        }],
+          chart: {
+          height: 220,
+          type: 'bar',
+        },
+        plotOptions: {
+          bar: {
+            borderRadius: 10,
+            dataLabels: {
+              position: 'top', // top, center, bottom
+            },
+          }
+        },
+        dataLabels: {
+          enabled: true,
+          formatter: function (val) {
+            return val ;
+          },
+          offsetY: -20,
+          style: {
+            fontSize: '12px',
+            colors: ["#304758"]
+          }
+        },
+        
+        xaxis: {
+          categories: ["Fevereiro", "Março", "Abril"], //Object.keys(result.EstimatedMonthlyVisits),
+          position: 'top',
+          axisBorder: {
+            show: false
+          },
+          axisTicks: {
+            show: false
+          },
+          crosshairs: {
+            fill: {
+              type: 'gradient',
+              gradient: {
+                colorFrom: '#D8E3F0',
+                colorTo: '#BED1E6',
+                stops: [0, 100],
+                opacityFrom: 0.4,
+                opacityTo: 0.5,
+              }
+            }
+          },
+          tooltip: {
+            enabled: true,
+          }
+        },
+        yaxis: {
+          axisBorder: {
+            show: false
+          },
+          axisTicks: {
+            show: false,
+          },
+          labels: {
+            show: false,
+            formatter: function (val) {
+              return val;
+            }
+          }
+        
+        },
+        title: {
+          text: 'Acessos dos ultimos 3 meses',
+          floating: true,
+          offsetY: 330,
+          align: 'center',
+          style: {
+            color: '#444'
+          }
+        }
+        };
+
+        var chart2 = new ApexCharts(document.querySelector("#chartMonths"), options2);
+        chart2.render();
 
 
                       
@@ -333,3 +505,24 @@ function carregaTrafego() {
 });
 
 }
+
+function mostraTecnologias(){
+
+ 
+  $(".content-wrapper").each(function() { 
+    console.log('$(this)[0].id ' + $(this)[0].id);
+	if ($(this)[0].id == 'tecnologias') {
+    console.log("Vai mostrar!!!!");
+		$(this).show(); 
+	} else {
+		$(this).hide();
+    }		
+	
+	
+  })
+
+
+}
+
+
+

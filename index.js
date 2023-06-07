@@ -51,7 +51,7 @@ const options = {
   headers: {},
   maxDepth: 3,
   maxUrls: 1,
-  maxWait: 5000,
+  maxWait: 35000,
   recursive: true,
   probe: true,
   proxy: false,
@@ -248,7 +248,7 @@ app.post('/prospectaSite/', encodeUrl, (req, res) => {
        
        
       }) 
-    })
+    }).catch(e => { console.log(e)})
     
 
     
@@ -533,8 +533,8 @@ function geraEcommerce(obj) {
   for (var icont=0; icont < obj.technologies.length; icont++) {
 
     if (obj.technologies[icont].categories[0].id == 6) {
-
-      ecoms.push(obj.technologies[icont].name);
+      
+            ecoms.push(obj.technologies[icont].name);
         
     }
 
