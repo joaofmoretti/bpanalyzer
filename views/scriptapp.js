@@ -49,8 +49,9 @@ $(".search-bar input")
 		$("#Carregando").show();
 		salvar();
     carregaCliente();
+      
+    
     carregaTrafego();
-		
 		
 		
 		
@@ -175,13 +176,13 @@ function montaPaginaTecnologias(data) {
       html.push('<span class="status-circle green"></span>');
       html.push(data.technologies[contech].categories[0].name);
       html.push('</span>');
-      html.push('<span class="status">');
-      html.push(data.technologies[contech].description);
-      html.push('</span>');
+      //html.push('<span class="status">');
+      //html.push(data.technologies[contech].description);
+      //html.push('</span>');
 
 
       html.push('<div class="button-wrapper">');
-      html.push('<button class="content-button status-button open">Site Oficial</button>');
+      html.push('<button class="content-button status-button open">Mais Informações</button>');
       
       html.push('</div>');
       html.push('</li>');
@@ -189,6 +190,55 @@ function montaPaginaTecnologias(data) {
 
     html.push('</ul></div>');
     $("#tecnologias")[0].innerHTML = html.join("");
+
+
+}
+
+function montaTabelaContatos(data) {
+
+  var html = [];
+
+  html.push(
+    '<div class="content-section" ><div class="content-section-title">Contatos do Cliente</div>',
+    ' <ul>');
+
+    for (let contech=0; contech < data[0].contacts.length; contech++) {
+
+      html.push(' <li class="adobe-product">');
+      html.push(' <div class="products">');
+      html.push('&nbsp');
+      html.push(data[0].contacts[contech].contact.name);
+      html.push(' </div>');   
+      html.push('<span class="status">');
+      html.push('<span class="status-circle green"></span>');
+      html.push(data[0].contacts[contech].contact.category)
+      if (data[0].contacts[contech].contact.department != null && data[0].contacts[contech].contact.department != undefined) {
+        html.push(" - " + data[0].contacts[contech].contact.department);
+      }  
+      html.push('</span>');
+      //html.push('<span class="status">');
+      //html.push(data.technologies[contech].description);
+      //html.push('</span>');
+
+
+      html.push('<div class="button-wrapper">');
+      html.push('<button class="content-button status-button open" >');
+      if (data[0].contacts[contech].contact.phones != null) {
+        if (data[0].contacts[contech].contact.phones[0] != null) {
+          if (data[0].contacts[contech].contact.phones[0].number != null) {
+              html.push(data[0].contacts[contech].contact.phones[0].number);
+          }
+        }
+      }
+      html.push('</button>');
+      
+      
+      html.push('</div>');
+      html.push('</li>');
+    }
+
+    html.push('</ul></div>');
+    $("#contatosCliente")[0].innerHTML = html.join("");
 
 
 }
@@ -254,6 +304,13 @@ function carregaCliente() {
         txtSoc = txtSoc + "</ul></div>";
 
         document.getElementById("quadrosocios").innerHTML=txtSoc;
+
+
+        console.log("Passou pelo carrega cliente");
+        if ($("#razao")[0].innerText != '' && $("#razao")[0].innerText != null) {
+          console.log('$("#razao")[0].innerText ' + $("#razao")[0].innerText);
+            carregaEmpodera($("#razao")[0].innerText);
+        }
                         
     }).catch(error => {
         console.log(error);
@@ -262,6 +319,57 @@ function carregaCliente() {
   });
 
 }
+
+function carregaEmpodera(nome) {
+  console.log("carregaEmpodera")
+
+  buscaEmpodera(nome).then(jsonData => {
+     
+      console.log("é agoraaaaaaa!!!!!");
+      console.log(jsonData);
+      $("#codigot")[0].innerText = 'CódigoT: ' + jsonData[0].codT + ' - ' + jsonData[0].tradeName
+      montaTabelaContatos(jsonData);
+
+      }).catch(error => {
+      console.log(error);
+      throw('Erro ' + error);
+
+});
+
+}
+
+function buscaEmpodera(nome) {
+  return new Promise((resolve, reject) => {
+    let method = "POST";
+    let urlaBusca = nome;  
+    console.log("buscaEmpodera " + nome);
+    var myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+    let raw = JSON.stringify({
+                    "busca" : nome
+                });
+    
+      let requestOptions = {
+            method: method,
+            headers: myHeaders,
+            body: raw,
+            redirect: 'follow'
+          };
+
+      fetch('/dadosEmpodera/', requestOptions)
+          .then(res => res.json())
+          .then(data => {
+            console.log(data);
+              resolve(data);
+          })
+          .catch(err => {
+            console.log(err);
+              reject(err);
+          })
+  });
+}
+
+
 
 function buscaTrafego() {
   return new Promise((resolve, reject) => {
