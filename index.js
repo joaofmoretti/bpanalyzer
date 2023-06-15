@@ -157,7 +157,7 @@ app.get('/RDStation.png', (req, res) => {
   res.sendFile(__dirname + '\\views\\RDStation.png'); 
 });
 
-app.listen(process.env.PORT || 5001, () => {
+app.listen(5001, () => {
     console.log("Aplicação de subiu na porta 5001");
 });
 
@@ -225,7 +225,7 @@ app.post('/dadosEmpodera/', encodeUrl, (req, res) => {
   console.log("Dados Empodera " + nome)
 
   let urlEmpodera = [];
-  urlEmpodera.push("https://empodera.totvs.com/api/area/totvs/customers-data/search/details?search=");
+  urlEmpodera.push("https://empodera.totvs.com/api/area/totvs/customers-data/search?customer=");
   urlEmpodera.push(nome);
   urlEmpodera.push("&status=Ativo&healthscoreType=totvs&mrr=&tickets=&report=false&take=15&skip=0&currentPage=1&perPage=10&sortAc=true&oportunity=all");
   
@@ -241,34 +241,52 @@ app.post('/dadosEmpodera/', encodeUrl, (req, res) => {
   console.log(urlEmpodera.join(""));
 
 fetch(urlEmpodera.join(""), requestOptions)
-  .then(response => response.text())
+.then(response => response.text())
   .then(result => { 
-                console.log('result!!!!!!!!!!!!!!!!!!!!!!!!!!!!1' );
-                console.log(result[0]);
-                console.log('result!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-                console.log('result[0].codT ' + result[0].codT);
+                
+                let clientesLocalizados = JSON.parse(result);
+
+                if (clientesLocalizados == null || clientesLocalizados.length == 0) {
+                  throw new Error('Customer not Found');
+
+                }
+                
                 let urlOportunidades = [];
                 urlOportunidades.push(' https://empodera.totvs.com/api/area/totvs/opportunities/customer/')
-                urlOportunidades.push(result[0].codT);
+                urlOportunidades.push(clientesLocalizados[0].codT);
                 urlOportunidades.push('/list?all=true&page=1&perPage=10&coin=BRL');
-                console.log(urlOportunidades.join(""))
+               
                 fetch(urlOportunidades.join(""), requestOptions)
                     .then(responseOps => responseOps.text())
                     .then(resultOps => {
-                      console.log("oportunudades");
-                      console.log(resultOps[0]);
-                      result.opportunities = resultOps;
-                      res.status(201). send(result);
-                    })
-                    .catch(error => {console.log('error', error); res.status(201). send(result);} );
+                      let oportunidadesLocalizadas = JSON.parse(resultOps);
+                      
+                      clientesLocalizados[0].opportunities = oportunidadesLocalizadas;
 
-    
-    
-                  })
-  .catch(error => console.log('error', error));
 
+                      let urlContatos = [];
+                      urlContatos.push('https://empodera.totvs.com/api/area-shared/totvs/contact?codT=')
+                      urlContatos.push(clientesLocalizados[0].codT);
+                      urlContatos.push('&perPage=100');
+                     
+                      fetch(urlContatos.join(""), requestOptions)
+                          .then(responseContatos => responseContatos.text())
+                          .then(responseContatos => {
+                            let contatosLocalizadas = JSON.parse(responseContatos);
+                            
+                            clientesLocalizados[0].contacts = contatosLocalizadas;
+
+                            res.status(201). send(clientesLocalizados);
+                            
+                          }).catch(error => {console.log('error', error)} );
+                    }).catch(error => {console.log('error', error)} );
+    
+              
+
+                
 
   
+}).catch(error => {console.log('error', error); res.status(404). send();} );
 })
 
 

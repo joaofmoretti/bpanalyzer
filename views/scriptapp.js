@@ -97,10 +97,12 @@ $(function () {
 });
 
 $(".status-button:not(.open)").click(function () {
+  console.log('popup visibel');
  $(".pop-up").addClass("visible");
 });
 
 $(".pop-up .close").click(function () {
+  console.log('popup invisivel!!!');
  $(".pop-up").removeClass("visible");
 });
 
@@ -202,18 +204,19 @@ function montaTabelaContatos(data) {
     '<div class="content-section" ><div class="content-section-title">Contatos do Cliente</div>',
     ' <ul>');
 
-    for (let contech=0; contech < data[0].contacts.length; contech++) {
+    for (let contech=0; contech < data[0].contacts.contacts.length; contech++) {
 
       html.push(' <li class="adobe-product">');
       html.push(' <div class="products">');
       html.push('&nbsp');
-      html.push(data[0].contacts[contech].contact.name);
+      html.push(data[0].contacts.contacts[contech].name);
       html.push(' </div>');   
       html.push('<span class="status">');
       html.push('<span class="status-circle green"></span>');
-      html.push(data[0].contacts[contech].contact.category)
-      if (data[0].contacts[contech].contact.department != null && data[0].contacts[contech].contact.department != undefined) {
-        html.push(" - " + data[0].contacts[contech].contact.department);
+      html.push(data[0].contacts.contacts[contech].category)
+     
+      if (data[0].contacts.contacts[contech].department != null && data[0].contacts.contacts[contech].department != undefined) {
+        html.push(" - " + data[0].contacts.contacts[contech].department);
       }  
       html.push('</span>');
       //html.push('<span class="status">');
@@ -223,12 +226,16 @@ function montaTabelaContatos(data) {
 
       html.push('<div class="button-wrapper">');
       html.push('<button class="content-button status-button open" >');
-      if (data[0].contacts[contech].contact.phones != null) {
-        if (data[0].contacts[contech].contact.phones[0] != null) {
-          if (data[0].contacts[contech].contact.phones[0].number != null) {
-              html.push(data[0].contacts[contech].contact.phones[0].number);
+      if (data[0].contacts.contacts[contech].phones != null && data[0].contacts.contacts[contech].phones.length > 0) {
+        if (data[0].contacts.contacts[contech].phones[0] != null) {
+          if (data[0].contacts.contacts[contech].phones[0].number != null && data[0].contacts.contacts[contech].phones[0].number != '') {
+              html.push(data[0].contacts.contacts[contech].phones[0].number);
+          } else {
+            html.push(data[0].contacts.contacts[contech].email);
           }
         }
+      } else {
+        html.push(data[0].contacts.contacts[contech].email);
       }
       html.push('</button>');
       
@@ -309,7 +316,7 @@ function carregaCliente() {
         console.log("Passou pelo carrega cliente");
         if ($("#razao")[0].innerText != '' && $("#razao")[0].innerText != null) {
           console.log('$("#razao")[0].innerText ' + $("#razao")[0].innerText);
-            carregaEmpodera($("#razao")[0].innerText);
+            carregaEmpodera($("#cnpj")[0].innerText.split("/")[0]);
         }
                         
     }).catch(error => {
@@ -327,8 +334,12 @@ function carregaEmpodera(nome) {
      
       console.log("é agoraaaaaaa!!!!!");
       console.log(jsonData);
-      $("#codigot")[0].innerText = 'CódigoT: ' + jsonData[0].codT + ' - ' + jsonData[0].tradeName
+      $("#codigot")[0].innerText = 'CódigoT: ' + jsonData[0].codT + ' - ' + jsonData[0].name;
+      $("#assinatura")[0].innerText = new Intl.DateTimeFormat(['ban', 'id']).format(new Date(jsonData[0].lifetime.firstSign));
+      $("#churn")[0].innerText = (Number.parseFloat(jsonData[0].healthscore.carol.result)*100).toFixed(2) + '%';
+      $("#nps")[0].innerText = jsonData[0].healthscore.empoderaArea.measures.nps.total;
       montaTabelaContatos(jsonData);
+      //montarTabelaOfertasSugeridas(jsonData);
 
       }).catch(error => {
       console.log(error);
@@ -632,5 +643,68 @@ function mostraTecnologias(){
 
 }
 
+function montarTabelaOfertasSugeridas(data) {
+
+if (data[0].opportunities == null) return;
+
+  var html = [];
+
+  html.push('<div class="content-section" >');
+  html.push('<div class="content-section-title">Ofertas Indicadas</div>');
+  html.push('<ul>');
+
+for (let icont = 0; icont < data[0].opportunities.data.length; icont++) {
+        let oportunidade = data[0].opportunities.data[icont];
+        html.push('<li class="adobe-product">');
+        html.push('<div class="products">');
+        html.push('&nbsp');
+        html.push(oportunidade.recommendation);
+        html.push('</div>');
+        html.push('<span class="status">');
+        html.push('<span class="status-circle"></span>');
+        html.push(oportunidade.brand);
+        html.push('</span>');
+        html.push('<div class="button-wrapper">');
+        html.push('<button class="content-button status-button">Detalhes</button>');
+        html.push('<div class="pop-up">');
+
+        html.push('<div class="pop-up__title">');
+        html.push(oportunidade.recommendation);
+        html.push('<svg class="close" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x-circle">');
+        html.push('<circle cx="12" cy="12" r="10" />');
+        html.push('<path d="M15 9l-6 6M9 9l6 6" />');
+        html.push('</svg>');
+        html.push('</div>');
+        html.push('<div class="pop-up__subtitle">');
+        html.push(oportunidade.recommendation);
+        html.push('<a href="#">Learn more</a></div>');
+        html.push('<div class="checkbox-wrapper"><label>');
+        html.push('Grupo de oferta: ' + oportunidade.offerGroup);
+        html.push('</label></div>');
+
+        html.push('<div class="checkbox-wrapper"><label>');
+        html.push('Ticked Médio: R$ ' + oportunidade.avgticketprice);
+        html.push('</label></div>');
+       
+        html.push('<div class="checkbox-wrapper"><label>');
+        html.push('Tempo para contato: ' + oportunidade.contactMonth);
+        html.push('</label></div>');
+        
+        html.push('<div class="checkbox-wrapper"><label>');
+        html.push('Tipo de oferta: ' + oportunidade.type);
+        html.push('</label></div>');
+        
+        html.push('<div class="content-button-wrapper">');
+        html.push('<button class="content-button status-button open close">OK</button>');
+        html.push('</div>');
+        html.push('</div></li>');      
+
+}
+
+  html.push('</ul></div></div>');
+  $("#ofertasSugeridasEmpodera")[0].innerHTML = html.join("");
+  
+  
+}
 
 
