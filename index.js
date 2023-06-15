@@ -308,7 +308,7 @@ app.post('/prospectaSite/', encodeUrl, (req, res) => {
           .catch(e => { 
             //obj.totvsOffers = geraOfertasTOTVS(obj);
             //obj.ecommerce = geraEcommerce(obj).toString() ;
-            res.status(201). send(obj);
+            res.status(404). send(e);
            }) // catch possible errors
          
        
