@@ -438,7 +438,8 @@ app.post('/trafego/', encodeUrl,   (req, res) => {
         return response.json();
       }).then((jsonData) => {
         result = jsonData
-        console.log(jsonData)
+        console.log("Moretti greatest hit ?")
+        console.log(result)
         res.send(jsonData);
         resolve(result)
       }).catch((err) => {
