@@ -339,7 +339,10 @@ function carregaEmpodera(nome) {
       $("#codigot")[0].innerText = 'CódigoT: ' + jsonData[0].codT + ' - ' + jsonData[0].name;
       $("#assinatura")[0].innerText = new Intl.DateTimeFormat(['ban', 'id']).format(new Date(jsonData[0].lifetime.firstSign));
       $("#churn")[0].innerText = (Number.parseFloat(jsonData[0].healthscore.carol.result)*100).toFixed(2) + '%';
-      $("#nps")[0].innerText = jsonData[0].healthscore.empoderaArea.measures.nps.total;
+      
+      try {
+        $("#nps")[0].innerText = jsonData[0].healthscore.empoderaArea.measures.nps.total;
+      } catch (err) {}
       montaTabelaContatos(jsonData);
       //montarTabelaOfertasSugeridas(jsonData);
 
