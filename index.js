@@ -157,7 +157,7 @@ app.get('/RDStation.png', (req, res) => {
   res.sendFile(__dirname + '\\views\\RDStation.png'); 
 });
 
-app.listen(5001, () => {
+app.listen(process.env.PORT || 5001, () => {
     console.log("Aplicação de subiu na porta 5001");
 });
 
