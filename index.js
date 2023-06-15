@@ -8,12 +8,12 @@ const { json } = require('body-parser');
 
 app.use(bodyParser.json());
 app.use(express.static(__dirname));
-app.use(express.static(__dirname + '\\views\\form.html'));
-app.use(express.static(__dirname + '\\views\\styleforms.css'));
-app.use(express.static(__dirname + '\\views\\form.js'));
-app.use(express.static(__dirname + '\\views\\totvs-logob.png'));
+app.use(express.static(__dirname + '/views/form.html'));
+app.use(express.static(__dirname + '/views/styleforms.css'));
+app.use(express.static(__dirname + '/views/form.js'));
+app.use(express.static(__dirname + '/views/totvs-logob.png'));
 console.log(__dirname);
-app.use(express.static(__dirname + '\\views\\login.html'));
+app.use(express.static(__dirname + '/views/login.html'));
 app.use(express.static(__dirname + '/views/stylelogin.css'));
 app.use(express.static(__dirname + '/views/totvs-logob.png'));
 
@@ -104,61 +104,61 @@ app.get('/login/', (req, res) => {
 }); 
 
 app.get('/form/styleforms.css', (req, res) => {
-    res.sendFile(__dirname + '\\views\\styleforms.css'); 
+    res.sendFile(__dirname + '/views/styleforms.css'); 
 });
 
 app.get('/styleapp.css', (req, res) => {
-    res.sendFile(__dirname + '\\views\\styleapp.css'); 
+    res.sendFile(__dirname + '/views/styleapp.css'); 
 });
 app.get('/scriptapp.js', (req, res) => {
-  res.sendFile(__dirname + '\\views\\scriptapp.js'); 
+  res.sendFile(__dirname + '/views/scriptapp.js'); 
 });
 
 app.get('/apexcharts.min.js', (req, res) => {
-  res.sendFile(__dirname + '\\views\\apexcharts.min.js'); 
+  res.sendFile(__dirname + '/views/apexcharts.min.js'); 
 });
 
 app.get('/bishop-94180.mp4', (req, res) => {
-  res.sendFile(__dirname + '\\views\\bishop-94180.mp4'); 
+  res.sendFile(__dirname + '/views/bishop-94180.mp4'); 
 });
 
 app.get('/icon_38.png', (req, res) => {
-  res.sendFile(__dirname + '\\views\\icon_38.png'); 
+  res.sendFile(__dirname + '/views/icon_38.png'); 
 });
 
 app.get('/', (req, res) => {
   
-  res.sendFile(__dirname + '\\views\\app.html');
+  res.sendFile(__dirname + '/views/app.html');
 });
 
 
 app.get('/app/', (req, res) => {
   
-    res.sendFile(__dirname + '\\views\\app.html');
+    res.sendFile(__dirname + '/views/app.html');
 });
 
 app.get('/form/form.js', (req, res) => {
-    res.sendFile(__dirname + '\\views\\form.js'); 
+    res.sendFile(__dirname + '/views/form.js'); 
 });
 
 app.get('/totvs-logob.png', (req, res) => {
-    res.sendFile(__dirname + '\\views\\totvs-logob.png'); 
+    res.sendFile(__dirname + '/views/totvs-logob.png'); 
 });
 
 app.get('/VTEX.svg', (req, res) => {
-  res.sendFile(__dirname + '\\views\\VTEX.svg'); 
+  res.sendFile(__dirname + '/views/VTEX.svg'); 
 });
 
 app.get('/Tail.svg', (req, res) => {
-  res.sendFile(__dirname + '\\views\\Tail.svg'); 
+  res.sendFile(__dirname + '/views/Tail.svg'); 
 });
 
 app.get('/Shopify.svg', (req, res) => {
-  res.sendFile(__dirname + '\\views\\Shopify.svg'); 
+  res.sendFile(__dirname + '/views/Shopify.svg'); 
 });
 
 app.get('/RDStation.png', (req, res) => {
-  res.sendFile(__dirname + '\\views\\RDStation.png'); 
+  res.sendFile(__dirname + '/views/RDStation.png'); 
 });
 
 app.listen(process.env.PORT || 5001, () => {
@@ -169,7 +169,7 @@ app.listen(process.env.PORT || 5001, () => {
 
 app.get('/form/', (req, res) => {
   res.append('Warning', '199 Miscellaneous warning 1111')
-    res.sendFile(__dirname + '\\views\\form.html');
+    res.sendFile(__dirname + '/views/form.html');
     res.append('Warning', '199 Miscellaneous warning 2222')
     //es.send("<script>alert('teste');</script>");
     
