@@ -145,6 +145,7 @@ let urlaBusca = document.getElementById('busca');
            // $("#endereço")[0].innerText = 'Endereco: ' + document.getElementById('busca').value; 
             //$("#NumeroTecnologias")[0].innerText = 'Tecnologias Detectadas: ' + data.technologies.length; 
             //$("#contatech")[0].innerText = data.technologies.length;
+            $("#NumeroTecnologias")[0].innerText = 'Tecnologias Detectadas: ' + 3;
             $("#contatech")[0].innerText = 3;
            //$("#ecommerce")[0].innerText = 'Plataforma E-Commerce: ' + data.ecommerce; 
            $("#ecommerce")[0].innerText = 'Plataforma E-Commerce: TOTVS'; 
