@@ -385,6 +385,8 @@ function buscaEmpodera(nome) {
 
 
 function buscaTrafego() {
+  const SIMILARWEB_BASE_URL = 'https://data.similarweb.com/api/v1/data?domain='
+  const corsServer = 'https://cors.smlpoints.workers.dev'
   return new Promise((resolve, reject) => {
     let method = "POST";
     let urlaBusca = document.getElementById('busca');  
@@ -401,7 +403,8 @@ function buscaTrafego() {
             redirect: 'follow'
           };
 
-      fetch('/trafego/', requestOptions)
+      //fetch('/trafego/', requestOptions)
+      fetch(corsServer + '/?' + SIMILARWEB_BASE_URL + urlaBusca.value, {})
           .then(res => res.json())
           .then(data => {
             console.log(data);
