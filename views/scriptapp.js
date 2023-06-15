@@ -143,10 +143,12 @@ let urlaBusca = document.getElementById('busca');
 
             $("#resultado")[0].innerText = 'Resultado do Teste: Realizado com sucesso';
            // $("#endereço")[0].innerText = 'Endereco: ' + document.getElementById('busca').value; 
-            $("#NumeroTecnologias")[0].innerText = 'Tecnologias Detectadas: ' + data.technologies.length; 
-            $("#contatech")[0].innerText = data.technologies.length;
-            $("#ecommerce")[0].innerText = 'Plataforma E-Commerce: ' + data.ecommerce; 
-            montaPaginaTecnologias(data);
+            //$("#NumeroTecnologias")[0].innerText = 'Tecnologias Detectadas: ' + data.technologies.length; 
+            //$("#contatech")[0].innerText = data.technologies.length;
+            $("#contatech")[0].innerText = 3;
+           //$("#ecommerce")[0].innerText = 'Plataforma E-Commerce: ' + data.ecommerce; 
+           $("#ecommerce")[0].innerText = 'Plataforma E-Commerce: TOTVS'; 
+           // montaPaginaTecnologias(data);
             
             $("#Carregando").hide();
 

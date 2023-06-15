@@ -1,4 +1,4 @@
-const Wappalyzer = require('wappalyzer')
+
 let express = require('express');
 let bodyParser = require('body-parser');
 let app = express();
@@ -62,8 +62,7 @@ const options = {
   noRedirect: false,
 };
 
-const wappalyzer = new Wappalyzer(options)
-wappalyzer.init()
+
 
 const parsePage = (body, url) => {
   let match = body.match(/<title>([^<]*)<\/title>/)  // regular expression to parse contents of the <title> tag
@@ -161,26 +160,7 @@ app.listen(5001, () => {
     console.log("Aplicação de subiu na porta 5001");
 });
 
-app.post('/login/', encodeUrl, (requisicao, resposta) => {
 
-    var usuario = requisicao.body.usuario;
-    url = usuario;
-
-    if (isValidUrl(url)) {
-      respostaGlobal=resposta;
-       prospectar(url);
-
-       
-       
-        
-        
-    } else {
-        resposta.send("<script>alert('Endereço inválido!'); history.go(-1);</script>");
-       
-    }
-
-    
-});
 
 app.get('/form/', (req, res) => {
   res.append('Warning', '199 Miscellaneous warning 1111')
@@ -195,12 +175,7 @@ app.get('/form/', (req, res) => {
 
 });
 
-function prospectar(url) {
-    console.log("prospectando")
-   let retorno = fetchRegistroBr(url);
-
- 
-}    
+  
 
 function cleanCompanyName(texto) {
 
@@ -310,34 +285,31 @@ app.post('/prospectaSite/', encodeUrl, (req, res) => {
       local: {}
       
     }
-    console.log("url " + url);
-    const site = wappalyzer.open(url, headers, storage)
+
 
     // Optionally capture and output errors
     //site.on('error', console.error)
 
-    site.then((a) => {
-      const results = a.analyze()
-      results.then((obj) => {
+   
         
         fetch(url)
           .then(resp => resp.text()) // parse response's body as text
           .then(body => parsePage(body, url)) // extract <title> from body
-          .then(page => { obj.title = page.title;
-                           obj.totvsOffers = geraOfertasTOTVS(obj);
-                           obj.ecommerce = geraEcommerce(obj).toString() ;
-                          res.status(201). send(obj);
+          .then(page => { 
+                           //obj.totvsOffers = geraOfertasTOTVS(obj);
+                           //obj.ecommerce = geraEcommerce(obj).toString() ;
+                          res.status(201). send(page);
                          }) // send the result back
-          .catch(e => { obj.title = tituloPagina;
-            obj.totvsOffers = geraOfertasTOTVS(obj);
-            obj.ecommerce = geraEcommerce(obj).toString() ;
+          .catch(e => { 
+            //obj.totvsOffers = geraOfertasTOTVS(obj);
+            //obj.ecommerce = geraEcommerce(obj).toString() ;
             res.status(201). send(obj);
            }) // catch possible errors
          
        
        
-      }) 
-    }).catch(e => { console.log(e)})
+    
+    
     
 
     
