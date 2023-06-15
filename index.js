@@ -126,6 +126,11 @@ app.get('/icon_38.png', (req, res) => {
   res.sendFile(__dirname + '\\views\\icon_38.png'); 
 });
 
+app.get('/', (req, res) => {
+  
+  res.sendFile(__dirname + '\\views\\app.html');
+});
+
 
 app.get('/app/', (req, res) => {
   
