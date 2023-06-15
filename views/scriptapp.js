@@ -324,7 +324,7 @@ function carregaCliente() {
                         
     }).catch(error => {
         console.log(error);
-        throw('Erro ' + error);
+        //throw('Erro ' + error);
 
   });
 
