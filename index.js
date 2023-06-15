@@ -202,6 +202,77 @@ function prospectar(url) {
  
 }    
 
+function cleanCompanyName(texto) {
+
+  let nome = texto.toLowerCase();
+
+  let palavras = ['s/a', 'sa', 's a', 'ltda', 'eireli', 's.a.', ' industria e comercio'];
+
+  for (var icont=0; icont < palavras.length; icont++) {
+      nome = nome.replace(palavras[icont], '');
+  }
+
+  return nome;
+
+
+}
+
+app.post('/dadosEmpodera/', encodeUrl, (req, res) => {
+  let nome  = req.body.busca;
+  nome = cleanCompanyName(nome);
+
+
+  console.log("Dados Empodera " + nome)
+
+  let urlEmpodera = [];
+  urlEmpodera.push("https://empodera.totvs.com/api/area/totvs/customers-data/search/details?search=");
+  urlEmpodera.push(nome);
+  urlEmpodera.push("&status=Ativo&healthscoreType=totvs&mrr=&tickets=&report=false&take=15&skip=0&currentPage=1&perPage=10&sortAc=true&oportunity=all");
+  
+  var myHeaders = new Headers();
+  myHeaders.append("accept", "application/json");
+  myHeaders.append("authorization", "Basic SXNCaUpXWUpWdzpTVkZ4Ym1FdGJtbzRXR00wTUd0VVdFNWpRbU53ZFRkS2JHaE9SV2RpUm1waGQwazFVRXhVZEVvNGVsUmZXbmMx");
+
+  var requestOptions = {
+    method: 'GET',
+    headers: myHeaders,
+    redirect: 'follow'
+  };
+  console.log(urlEmpodera.join(""));
+
+fetch(urlEmpodera.join(""), requestOptions)
+  .then(response => response.text())
+  .then(result => { 
+                console.log('result!!!!!!!!!!!!!!!!!!!!!!!!!!!!1' );
+                console.log(result[0]);
+                console.log('result!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+                console.log('result[0].codT ' + result[0].codT);
+                let urlOportunidades = [];
+                urlOportunidades.push(' https://empodera.totvs.com/api/area/totvs/opportunities/customer/')
+                urlOportunidades.push(result[0].codT);
+                urlOportunidades.push('/list?all=true&page=1&perPage=10&coin=BRL');
+                console.log(urlOportunidades.join(""))
+                fetch(urlOportunidades.join(""), requestOptions)
+                    .then(responseOps => responseOps.text())
+                    .then(resultOps => {
+                      console.log("oportunudades");
+                      console.log(resultOps[0]);
+                      result.opportunities = resultOps;
+                      res.status(201). send(result);
+                    })
+                    .catch(error => {console.log('error', error); res.status(201). send(result);} );
+
+    
+    
+                  })
+  .catch(error => console.log('error', error));
+
+
+  
+})
+
+
+
 app.post('/prospectaSite/', encodeUrl, (req, res) => {
   
   
