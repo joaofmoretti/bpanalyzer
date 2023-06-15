@@ -322,6 +322,7 @@ app.post('/prospectaSite/', encodeUrl, (req, res) => {
     //console.log(JSON.stringify(results, null, 2))
   } catch (error) {
     console.error(error)
+    res.status(404). send(error);
   }
 
   
