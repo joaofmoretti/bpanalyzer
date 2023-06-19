@@ -345,7 +345,7 @@ function carregaEmpodera(nome) {
         $("#nps")[0].innerText = jsonData[0].healthscore.empoderaArea.measures.nps.total;
       } catch (err) {}
       montaTabelaContatos(jsonData);
-      //montarTabelaOfertasSugeridas(jsonData);
+      montarTabelaOfertasSugeridas(jsonData);
 
       }).catch(error => {
       console.log(error);
@@ -669,10 +669,10 @@ for (let icont = 0; icont < data[0].opportunities.data.length; icont++) {
         html.push('&nbsp');
         html.push(oportunidade.recommendation);
         html.push('</div>');
-        html.push('<span class="status">');
+        /*html.push('<span class="status">');
         html.push('<span class="status-circle"></span>');
         html.push(oportunidade.brand);
-        html.push('</span>');
+        html.push('</span>');*/
         html.push('<div class="button-wrapper">');
         html.push('<button class="content-button status-button">Detalhes</button>');
         html.push('<div class="pop-up">');

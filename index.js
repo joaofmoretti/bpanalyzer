@@ -39,8 +39,8 @@ let pagina = {
 }
 
 let router = express.Router();
-app.use("/form/",router);
-app.use("/login/",router);
+app.use("/app/",router);
+app.use("/calc/",router);
 let encodeUrl = bodyParser.urlencoded({ extended: false });
 
 let url = 'https://www.wappalyzer.com'
@@ -131,6 +131,10 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/views/app.html');
 });
 
+app.get('/calc/', (req, res) => {
+  
+  res.sendFile(__dirname + '/views/calc.html');
+});
 
 app.get('/app/', (req, res) => {
   
