@@ -1,3 +1,5 @@
+const chromium = require('chromium');
+const {execFile} = require('child_process');
 const Wappalyzer = require('wappalyzer')
 let express = require('express');
 let bodyParser = require('body-parser');
@@ -101,7 +103,16 @@ const parsePage = (body, url) => {
 
 
 app.get('/login/', (req, res) => {
-    res.sendFile(__dirname + '/views/login.html');
+  try {
+    execFile(chromium.path, ['https://google.com', '--headless'], { timeout: 2000 }, err => { 
+      console.log('Hello Google!');
+      res.status(201).send('Rodou o chrome!!! ' + chromium.path);
+    });
+  }
+  catch (error) {
+    console.error(error)
+    res.status(404). send(error);
+  }
 }); 
 
 app.get('/form/styleforms.css', (req, res) => {
@@ -277,8 +288,7 @@ fetch(urlEmpodera.join(""), requestOptions)
 
 
 app.post('/prospectaSite/', encodeUrl, (req, res) => {
-  const wappalyzer = new Wappalyzer(options)
-wappalyzer.init()
+  
   
   url = req.body.busca;
   console.log(req.body);
@@ -286,7 +296,8 @@ wappalyzer.init()
   console.log("propsectaSite URL " + url);
   
   try {
-
+    const wappalyzer = new Wappalyzer(options)
+  wappalyzer.init()
     // Optionally set additional request headers
     const headers = {}
 
