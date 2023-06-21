@@ -62,8 +62,7 @@ const options = {
   noRedirect: false,
 };
 
-const wappalyzer = new Wappalyzer(options)
-wappalyzer.init()
+
 
 
 const parsePage = (body, url) => {
@@ -278,7 +277,8 @@ fetch(urlEmpodera.join(""), requestOptions)
 
 
 app.post('/prospectaSite/', encodeUrl, (req, res) => {
-  
+  const wappalyzer = new Wappalyzer(options)
+wappalyzer.init()
   
   url = req.body.busca;
   console.log(req.body);
