@@ -1,4 +1,4 @@
-
+const Wappalyzer = require('wappalyzer')
 let express = require('express');
 let bodyParser = require('body-parser');
 let app = express();
@@ -312,7 +312,7 @@ app.post('/prospectaSite/', encodeUrl, (req, res) => {
           .catch(e => { 
             //obj.totvsOffers = geraOfertasTOTVS(obj);
             //obj.ecommerce = geraEcommerce(obj).toString() ;
-            res.status(201). send(obj);
+            res.status(404). send(e);
            }) // catch possible errors
          
        
@@ -335,6 +335,19 @@ app.post('/prospectaSite/', encodeUrl, (req, res) => {
   
 })
 
+app.post('/apenasdadosGoverno/', encodeUrl,   (req, res) => {
+  var busca = req.body.busca;;
+  let num = busca;
+console.log('apenasdadosGoverno ' + num);
+let dados = null;
+          let urlGover = 'https://publica.cnpj.ws/cnpj/' + num.toString();
+          console.log("urlGover " + urlGover);
+          fetch(urlGover)
+          // Tratamento do sucesso
+          .then(response => response.json())  // converter para json
+          .then(json => {res.send(json);})    //imprimir dados no console
+          .catch(err => console.log('Erro de solicitação', err));
+})          
 
 app.post('/dadosGoverno/', encodeUrl,   (req, res) => {
 
@@ -343,7 +356,7 @@ app.post('/dadosGoverno/', encodeUrl,   (req, res) => {
   let cnpjEncontrado = ''
   let num = '';
   let result = {}
-  console.log("Pagina !!!!!!!!!!!!!!!!!!!!!!!1");
+  console.log("Pagina !!!!!!!!!!!!!!!!!!!!!!!222222 " + url);
   let pageCNPJ = fetch(url)
           .then(resp => resp.text()) // parse response's body as text
           .then(body => parsePage(body, url)) // extract <title> from body
@@ -353,6 +366,7 @@ app.post('/dadosGoverno/', encodeUrl,   (req, res) => {
               num = cnpjEncontrado.replace(/\D/g,'').substring(0,14);
               if (num.length >= 14)  {
                   let urlGover = 'https://publica.cnpj.ws/cnpj/' + num.toString();
+                  //let urlGover = 'https://publica.cnpj.ws/cnpj/' + num.toString();
                 console.log("urlGover sem passar pelo RegistroBR" + urlGover);
                 fetch(urlGover)
                 // Tratamento do sucesso
@@ -396,8 +410,8 @@ app.post('/dadosGoverno/', encodeUrl,   (req, res) => {
           .catch(err => console.log('Erro de solicitação', err));
           
         }
-      });
-    })    
+      }).catch(erroRegistro => {console.log("erro na requisicao que recupera o Registro"); console.log(erroRegistro)});
+    }).catch(erroCNPJ => {console.log("erro na requisicao que recupera o cnpj"); console.log(erroCNPJ)})    
 })
   
 
@@ -411,22 +425,51 @@ async function fetchRegistroBr(inputAddress) {
     console.log(registroBR_URL + '/' + urlHost.host);
     fetch(registroBR_URL + '/' +  urlHost.host)
       .then((response) => {
+        console.log(response)
         if (!response.ok) return resolve(result)
         return response.json();
       }).then((jsonData) => {
+        console.log(jsonData)
         result = jsonData
         console.log(result);		
         let cnpj = [result.entities[0].publicIds[0].identifier];
         let num = cnpj[0].replace(/\D/g,'').substring(0,14);
 		    resolve(result)
       }).catch((err) => {
-		    console.log("erro da parada");  
-        console.log(err);
-		
+		    console.log("erro da parada")  
+        console.log(err)
+        reject(err)
+        //throw err
 		
       });
   })
 }
+
+app.post('/trafego/concorrentes/', encodeUrl,   (req, res) => {
+
+
+const spyfu_BASE_URL = 'https://www.spyfu.com/NsaApi/Competitors/GetPaidAndOrganicTopCompetitors?countryCode=BR&domain='
+var busca = req.body.busca;;
+  let urlHost = new URL(busca);
+  let result = {}
+  return new Promise((resolve, reject) => {
+    fetch(spyfu_BASE_URL + urlHost)
+      .then((response) => {
+        if (!response.ok) return resolve(result)
+        return response.json();
+      }).then((jsonData) => {
+        result = jsonData
+        res.send(jsonData);
+        resolve(result)
+      }).catch((err) => {
+        console.log(err);
+      });  
+
+})
+
+})  
+
+
 
 app.post('/trafego/', encodeUrl,   (req, res) => {
 

@@ -26,6 +26,7 @@ $(function () {
  });
 });
 
+let divEmpodera;
 const dropdowns = document.querySelectorAll(".dropdown");
 dropdowns.forEach((dropdown) => {
  dropdown.addEventListener("click", (e) => {
@@ -57,15 +58,8 @@ $(".search-bar input")
 		
     }
  })	 
- ;
+ 
 
-function wait(ms){
-   var start = new Date().getTime();
-   var end = start;
-   while(end < start + ms) {
-     end = new Date().getTime();
-  }
-}	
 
 $(document).click(function (e) {
  var container = $(".status-button");
@@ -216,8 +210,13 @@ function montaTabelaContatos(data) {
       html.push(' </div>');   
       html.push('<span class="status">');
       html.push('<span class="status-circle green"></span>');
-      html.push(data[0].contacts.contacts[contech].category)
-     
+      
+      if (data[0].contacts.contacts[contech].label != null && data[0].contacts.contacts[contech].label.name != null ) {
+        html.push(data[0].contacts.contacts[contech].label.name)
+      } else {
+      
+        html.push(data[0].contacts.contacts[contech].category)
+      }
       if (data[0].contacts.contacts[contech].department != null && data[0].contacts.contacts[contech].department != undefined) {
         html.push(" - " + data[0].contacts.contacts[contech].department);
       }  
@@ -254,41 +253,67 @@ function montaTabelaContatos(data) {
 }
 
 function buscaCliente() {
-  return new Promise((resolve, reject) => {
-    let method = "POST";
-    let urlaBusca = document.getElementById('busca');  
-    var myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-    let raw = JSON.stringify({
-                    "busca" : urlaBusca.value
-                });
-    
-      let requestOptions = {
-            method: method,
-            headers: myHeaders,
-            body: raw,
-            redirect: 'follow'
-          };
+  console.log("BuscaCliene")
+  let method = "POST";
+  let urlaBusca = document.getElementById('busca'); 
+  let registroBr = fetchRegistroBr(new URL(urlaBusca.value));
+  registroBr.then(result => {
+      return new Promise((resolve, reject) => {
+        let num;
+        try{
+          let cnpjEncontrado = [result.entities[0].publicIds[0].identifier];
+          num = cnpjEncontrado[0].replace(/\D/g,'').substring(0,14);
+        } catch (erro) {
+          console.log("Não foi possível pegar o CNPJ do domímio");
+          console.log(result)
+        }
 
-      fetch('/dadosGoverno/', requestOptions)
-          .then(res => res.json())
-          .then(data => {
-            console.log(data);
-              resolve(data);
-          })
-          .catch(err => {
-            console.log(err);
-              reject(err);
-          })
-  });
+        
+        console.log("Bumero aqui " + num);
+        let urlObject = new URL(urlaBusca.value);
+        
+        var myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+        let raw = JSON.stringify({
+                        "busca" : num
+                    });
+        
+          let requestOptions = {
+                method: method,
+                headers: myHeaders,
+                body: raw,
+                redirect: 'follow'
+              };
+
+          fetch('/apenasdadosGoverno/', requestOptions)      
+              .then(res => res.json())
+              .then(data => {
+                console.log(data);
+                atualizaAbaDadosGovernamentais(data);
+                  resolve(data);
+              })
+              .catch(err => {
+                console.log(err);
+                  reject(err);
+              })
+      });
+    })
+    console.log("terminou o busca cliente")    
 }
 
 function carregaCliente() {
     console.log("CarregaCliente")
 
-    buscaCliente().then(cliente => {
-        clienteAtual = cliente;
+    let testeCliente = buscaCliente();
 
+    
+
+   
+
+    /*testeCliente.then(cliente => {
+
+        clienteAtual = cliente;
+        console.log("testaCliente");
         console.log(cliente);
 
         
@@ -327,14 +352,58 @@ function carregaCliente() {
         //throw('Erro ' + error);
 
   });
+*/
+}
+
+
+function atualizaAbaDadosGovernamentais(clienteAtual) {
+  console.log("atualizaAbaDadosGovernamentais")
+
+ 
+      
+      $("#razao")[0].innerText = clienteAtual.razao_social;
+      $("#cnpj")[0].innerText = clienteAtual.estabelecimento.cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
+      $("#cidade")[0].innerText = clienteAtual.estabelecimento.cidade.nome;
+      $("#estado")[0].innerText = clienteAtual.estabelecimento.estado.nome;
+      $("#atividade")[0].innerText = clienteAtual.estabelecimento.atividade_principal.descricao;
+      $("#porte")[0].innerText = clienteAtual.porte.descricao;
+      $("#capital")[0].innerText = clienteAtual.capital_social.toLocaleString('pt-br', {minimumFractionDigits: 2});
+
+
+
+
+      let txtSoc = '<div class="content-section-title">Quadro societário</div><ul> ';
+
+
+
+      clienteAtual.socios.forEach((socio) => {
+          txtSoc = txtSoc  + '<li class="adobe-product"><div class="products">' + socio.nome + '</div><span class="status"><span class="status-circle green"></span> ' 
+                          + socio.qualificacao_socio.descricao + '</span></li> ';
+      })
+      txtSoc = txtSoc + "</ul></div>";
+
+      document.getElementById("quadrosocios").innerHTML=txtSoc;
+
+
+      console.log("Passou pelo carrega cliente");
+      if ($("#razao")[0].innerText != '' && $("#razao")[0].innerText != null) {
+        console.log('$("#razao")[0].innerText ' + $("#razao")[0].innerText);
+          carregaEmpodera($("#cnpj")[0].innerText.split("/")[0]);
+      }
 
 }
 
+
+
 function carregaEmpodera(nome) {
   console.log("carregaEmpodera")
-
+  
   buscaEmpodera(nome).then(jsonData => {
-     
+
+    
+      if (divEmpodera != null) {
+        $("#TOTVS")[0].innerHTML = divEmpodera;
+      }
       console.log("é agoraaaaaaa!!!!!");
       console.log(jsonData);
       $("#codigot")[0].innerText = 'CódigoT: ' + jsonData[0].codT + ' - ' + jsonData[0].name;
@@ -343,17 +412,24 @@ function carregaEmpodera(nome) {
       
       try {
         $("#nps")[0].innerText = jsonData[0].healthscore.empoderaArea.measures.nps.total;
-      } catch (err) {}
+      } catch (err) {console.log("Zicou aqui!!! " + err)}
       montaTabelaContatos(jsonData);
       montarTabelaOfertasSugeridas(jsonData);
 
       }).catch(error => {
-      console.log(error);
-      throw('Erro ' + error);
+        divEmpodera = $("#TOTVS")[0].innerHTML;
+          console.log(error);
+          $("#TOTVS")[0].innerHTML = noInfoAvail("Cliente não localizado na Base TOTVS");
+          throw('Erro empodera!' + error);
+          
 
-});
+      });
 
 }
+
+
+
+
 
 function buscaEmpodera(nome) {
   return new Promise((resolve, reject) => {
@@ -716,4 +792,45 @@ for (let icont = 0; icont < data[0].opportunities.data.length; icont++) {
   
 }
 
+async function fetchRegistroBr(inputAddress) {
 
+  let urlHost = new URL(inputAddress);
+  const registroBR_URL = 'https://rdap.registro.br/domain'
+  let result = {}
+
+  return new Promise((resolve, reject) => {
+    console.log(registroBR_URL + '/' + urlHost.host);
+    fetch(registroBR_URL + '/' +  urlHost.host)
+      .then((response) => {
+        console.log(response)
+        if (!response.ok) return resolve(result)
+        return response.json();
+      }).then((jsonData) => {
+        console.log(jsonData)
+        result = jsonData
+        console.log(result);		
+        let cnpj = [result.entities[0].publicIds[0].identifier];
+        let num = cnpj[0].replace(/\D/g,'').substring(0,14);
+		    resolve(result)
+      }).catch((err) => {
+        
+		    console.log("erro da parada")  
+        console.log(err)
+        reject(err)
+        //throw err
+		
+      });
+  })
+}
+
+function noInfoAvail(mensagem) {
+  let html = [];
+  html.push('<table  width="100%" height="100%"><tr><td align="center"><h3 class="menu-link-main">')
+  html.push(mensagem)
+  html.push('</h3></td></tr></table>');
+
+  return html.join("");
+
+
+
+}
