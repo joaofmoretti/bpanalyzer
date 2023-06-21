@@ -285,8 +285,8 @@ app.post('/prospectaSite/', encodeUrl, (req, res) => {
   console.log("propsectaSite URL " + url);
   
   try {
-    const wappalyzer = new Wappalyzer(options)
-    wappalyzer.init()
+    //const wappalyzer = new Wappalyzer(options)
+    //wappalyzer.init()
     // Optionally set additional request headers
     const headers = {}
 
