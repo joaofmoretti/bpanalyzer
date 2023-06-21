@@ -62,7 +62,8 @@ const options = {
   noRedirect: false,
 };
 
-
+const wappalyzer = new Wappalyzer(options)
+wappalyzer.init()
 
 const parsePage = (body, url) => {
   let match = body.match(/<title>([^<]*)<\/title>/)  // regular expression to parse contents of the <title> tag
