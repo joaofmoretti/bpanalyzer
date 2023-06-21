@@ -1,4 +1,4 @@
-const Wappalyzer = require('wappalyzer')
+//const Wappalyzer = require('wappalyzer')
 let express = require('express');
 let bodyParser = require('body-parser');
 let app = express();
@@ -62,7 +62,7 @@ const options = {
   noRedirect: false,
 };
 
-const wappalyzer = new Wappalyzer(options)
+
 
 
 const parsePage = (body, url) => {
@@ -285,7 +285,7 @@ app.post('/prospectaSite/', encodeUrl, (req, res) => {
   console.log("propsectaSite URL " + url);
   
   try {
-    
+    const wappalyzer = new Wappalyzer(options)
     wappalyzer.init()
     // Optionally set additional request headers
     const headers = {}
