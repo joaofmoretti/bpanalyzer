@@ -1,4 +1,4 @@
-//const Wappalyzer = require('wappalyzer')
+const Wappalyzer = require('wappalyzer')
 let express = require('express');
 let bodyParser = require('body-parser');
 let app = express();
