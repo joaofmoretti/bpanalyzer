@@ -63,7 +63,7 @@ const options = {
 };
 
 const wappalyzer = new Wappalyzer(options)
-wappalyzer.init()
+
 
 const parsePage = (body, url) => {
   let match = body.match(/<title>([^<]*)<\/title>/)  // regular expression to parse contents of the <title> tag
@@ -286,7 +286,7 @@ app.post('/prospectaSite/', encodeUrl, (req, res) => {
   
   try {
     
-
+    wappalyzer.init()
     // Optionally set additional request headers
     const headers = {}
 
