@@ -102,7 +102,7 @@ const parsePage = (body, url) => {
 }
 
 
-app.get('/login/', (req, res) => {
+app.get('/teste/', (req, res) => {
   try {
     execFile(chromium.path, ['https://google.com', '--headless'], { timeout: 2000 }, err => { 
       console.log('Hello Google!');
