@@ -1,5 +1,3 @@
-const chromium = require('chromium');
-const {execFile} = require('child_process');
 const Wappalyzer = require('wappalyzer')
 let express = require('express');
 let bodyParser = require('body-parser');
@@ -296,8 +294,9 @@ app.post('/prospectaSite/', encodeUrl, (req, res) => {
   console.log("propsectaSite URL " + url);
   
   try {
+
     const wappalyzer = new Wappalyzer(options)
-  wappalyzer.init()
+    wappalyzer.init()
     // Optionally set additional request headers
     const headers = {}
 
@@ -307,19 +306,21 @@ app.post('/prospectaSite/', encodeUrl, (req, res) => {
       
     }
 
-
+    const site = wappalyzer.open(url, headers, storage)
     // Optionally capture and output errors
     //site.on('error', console.error)
 
-   
+    site.then((a) => {
+      const results = a.analyze()
+      results.then((obj) => {
         
         fetch(url)
           .then(resp => resp.text()) // parse response's body as text
           .then(body => parsePage(body, url)) // extract <title> from body
-          .then(page => { 
-                           //obj.totvsOffers = geraOfertasTOTVS(obj);
-                           //obj.ecommerce = geraEcommerce(obj).toString() ;
-                          res.status(201). send(page);
+          .then(page => { obj.title = page.title;
+                           obj.totvsOffers = geraOfertasTOTVS(obj);
+                           obj.ecommerce = geraEcommerce(obj).toString() ;
+                          res.status(201). send(obj);
                          }) // send the result back
           .catch(e => { 
             //obj.totvsOffers = geraOfertasTOTVS(obj);
@@ -327,14 +328,9 @@ app.post('/prospectaSite/', encodeUrl, (req, res) => {
             res.status(404). send(e);
            }) // catch possible errors
          
-       
-       
-    
-    
-    
-
-    
-
+          })   
+    }).catch(e => { console.log(e)})   
+ 
     //console.log(JSON.stringify(results, null, 2))
   } catch (error) {
     console.error(error)
