@@ -1,1 +1,5 @@
 runtime: nodejs18
+
+env_variables:
+  NODE_CHROMIUM_REVISION: "1095492"
+  NODE_CHROMIUM_CACHE_PATH: "/home/cnb/.cache/puppeteer"

