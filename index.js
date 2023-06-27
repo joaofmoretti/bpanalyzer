@@ -1,5 +1,4 @@
 const Wappalyzer = require('wappalyzer')
-const chromium = require('chromium');
 const {execFile} = require('child_process');
 
 let express = require('express');
@@ -336,9 +335,9 @@ app.post('/prospectaSite/', encodeUrl, (req, res) => {
     // Optionally capture and output errors
     //site.on('error', console.error)
 
-    site.then((a) => {
-      const results = a.analyze()
-      results.then((obj) => {
+    //site.then((a) => {
+     // const results = a.analyze()
+      //results.then((obj) => {
         
         fetch(url)
           .then(resp => resp.text()) // parse response's body as text
@@ -354,8 +353,8 @@ app.post('/prospectaSite/', encodeUrl, (req, res) => {
             res.status(404). send(e);
            }) // catch possible errors
          
-          })   
-    }).catch(e => { console.log(e)})   
+          //})   
+   // }).catch(e => { console.log(e)})   
  
     //console.log(JSON.stringify(results, null, 2))
   } catch (error) {
