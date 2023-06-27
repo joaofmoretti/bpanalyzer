@@ -155,7 +155,7 @@ let urlaBusca = document.getElementById('busca');
             
 
               
-  }).catch((err) => { console.dir(err);});
+  }).catch((err) => { console.dir(err); $("#Carregando").hide(); $("#Resultados").show();});
 
 }
 
