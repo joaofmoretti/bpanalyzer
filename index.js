@@ -1,10 +1,11 @@
 const Wappalyzer = require('wappalyzer')
 const {execFile} = require('child_process');
+const cors = require('cors');
 
 let express = require('express');
 let bodyParser = require('body-parser');
 let app = express();
-
+app.use(cors());
 const { application } = require('express');
 const { json } = require('body-parser');
 
@@ -166,6 +167,19 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/views/app.html');
 });
 
+app.get('/site/:site', (req, res) => {
+  console.log("NOvo construtor!!!");
+  console.log(req.params);
+
+  let sitedoPlugin = decodeURIComponent(req.params);
+
+  res.redirect('/');
+
+  res.send("<script>alert('Usuário ou senha inválidos!'); history.go(-1);</script>");
+
+  //res.sendFile(__dirname + '/views/app.html');
+});
+
 app.get('/calc/', (req, res) => {
   
   res.sendFile(__dirname + '/views/calc.html');
@@ -200,8 +214,8 @@ app.get('/RDStation.png', (req, res) => {
   res.sendFile(__dirname + '/views/RDStation.png'); 
 });
 
-app.listen(process.env.PORT || 5001, () => {
-    console.log("Aplicação de subiu na porta 5001");
+app.listen(process.env.PORT || 80, () => {
+    console.log("Aplicação de subiu na porta 80");
 });
 
 
@@ -237,39 +251,34 @@ function cleanCompanyName(texto) {
 }
 
 app.post('/dadosEmpodera/', encodeUrl, (req, res) => {
+
+
   let nome  = req.body.busca;
-  nome = cleanCompanyName(nome);
-
-
-  console.log("Dados Empodera " + nome)
-
-  let urlEmpodera = [];
-  urlEmpodera.push("https://empodera.totvs.com/api/area/totvs/customers-data/search?customer=");
-  urlEmpodera.push(nome);
-  urlEmpodera.push("&status=Ativo&healthscoreType=totvs&mrr=&tickets=&report=false&take=15&skip=0&currentPage=1&perPage=10&sortAc=true&oportunity=all");
+  let clienteCNPJRegistroBR = BuscaClienteEmpodera(nome);
+  let requestOptions = getEmpoderaResquetHeader();
   
-  var myHeaders = new Headers();
-  myHeaders.append("accept", "application/json");
-  myHeaders.append("authorization", "Basic SXNCaUpXWUpWdzpTVkZ4Ym1FdGJtbzRXR00wTUd0VVdFNWpRbU53ZFRkS2JHaE9SV2RpUm1waGQwazFVRXhVZEVvNGVsUmZXbmMx");
-
-  var requestOptions = {
-    method: 'GET',
-    headers: myHeaders,
-    redirect: 'follow'
-  };
-  console.log(urlEmpodera.join(""));
-
-fetch(urlEmpodera.join(""), requestOptions)
-.then(response => response.text())
-  .then(result => { 
-                
-                let clientesLocalizados = JSON.parse(result);
-
-                if (clientesLocalizados == null || clientesLocalizados.length == 0) {
-                  throw new Error('Customer not Found');
+  
+  clienteCNPJRegistroBR.then(result => { 
+                console.log("Resultado empodera!!!")
+                console.log(result)
+                let clientesLocalizados = result;
+               
+                if (clientesLocalizados == null || clienteCNPJRegistroBR.length == 0  ) {
+                  
+                  //throw new Error('Customer not Found with search ' + nome);
+                  console.log("Vai tentar com outro cnpj: " + cnpj) 
+                  let clienteCNPJSite = BuscaClienteEmpodera(cnpj);
+                  clienteCNPJSite.then(resultado => {
+                    clientesLocalizados = resultado;
+                  })
 
                 }
                 
+                console.log("Cliente que vai retornar");
+                console.log(clientesLocalizados);
+
+
+
                 let urlOportunidades = [];
                 urlOportunidades.push(' https://empodera.totvs.com/api/area/totvs/opportunities/customer/')
                 urlOportunidades.push(clientesLocalizados[0].codT);
@@ -316,7 +325,16 @@ app.post('/prospectaSite/', encodeUrl, (req, res) => {
   url = req.body.busca;
   console.log(req.body);
 
+  url = url.toLowerCase();
+
+  if (url.indexOf('http') == -1) {
+    url = 'https://' + url;
+  }
+
   console.log("propsectaSite URL " + url);
+
+
+ 
   
   try {
 
@@ -335,31 +353,40 @@ app.post('/prospectaSite/', encodeUrl, (req, res) => {
     // Optionally capture and output errors
     //site.on('error', console.error)
 
-    //site.then((a) => {
-     // const results = a.analyze()
-      //results.then((obj) => {
+    site.then((a) => {
+     const results = a.analyze()
+      results.then((obj) => {
         
         fetch(url)
           .then(resp => resp.text()) // parse response's body as text
           .then(body => parsePage(body, url)) // extract <title> from body
           .then(page => { obj.title = page.title;
+                          obj.cnpjSite = page.cnpj;
                            obj.totvsOffers = geraOfertasTOTVS(obj);
                            obj.ecommerce = geraEcommerce(obj).toString() ;
+                           
                           res.status(201). send(obj);
                          }) // send the result back
           .catch(e => { 
             //obj.totvsOffers = geraOfertasTOTVS(obj);
             //obj.ecommerce = geraEcommerce(obj).toString() ;
-            res.status(404). send(e);
+            console.log('erro da busca de pagina');
+            console.log(e);
+            res.status(404). send("Erro de busca da pagina");
            }) // catch possible errors
          
-          //})   
-   // }).catch(e => { console.log(e)})   
+          })   
+   }).catch(e => { 
+                    console.log("Erro de Analize Wappalyzer")
+                    console.log(e)
+  
+                    })   
  
-    //console.log(JSON.stringify(results, null, 2))
+    
   } catch (error) {
+    console.log("Erro da prospecção inteira")
     console.error(error)
-    res.status(404). send(error);
+    res.status(404).send("erro de prospecção");
   }
 
   
@@ -447,6 +474,58 @@ app.post('/dadosGoverno/', encodeUrl,   (req, res) => {
     }).catch(erroCNPJ => {console.log("erro na requisicao que recupera o cnpj"); console.log(erroCNPJ)})    
 })
   
+
+function getEmpoderaResquetHeader() {
+  var myHeaders = new Headers();
+  myHeaders.append("accept", "application/json");
+  myHeaders.append("authorization", "Basic SXNCaUpXWUpWdzpTVkZ4Ym1FdGJtbzRXR00wTUd0VVdFNWpRbU53ZFRkS2JHaE9SV2RpUm1waGQwazFVRXhVZEVvNGVsUmZXbmMx");
+
+  var requestOptions = {
+    method: 'GET',
+    headers: myHeaders,
+    redirect: 'follow'
+  };
+
+  return requestOptions;
+}
+
+async function BuscaClienteEmpodera(nome) {
+
+
+
+
+  console.log("BuscaClienteEmpodera " + nome)
+
+  let urlEmpodera = [];
+  urlEmpodera.push("https://empodera.totvs.com/api/area/totvs/customers-data/search?customer=");
+  urlEmpodera.push(nome);
+  urlEmpodera.push("&status=Ativo&healthscoreType=totvs&mrr=&tickets=&report=false&take=15&skip=0&currentPage=1&perPage=10&sortAc=true&oportunity=all");
+  
+  let requestOptions = getEmpoderaResquetHeader();
+  console.log(urlEmpodera.join(""));
+  return new Promise((resolve, reject) => {
+    fetch(urlEmpodera.join(""), requestOptions).then((response) => {
+     
+      if (!response.ok) return resolve(response)
+      return response.json();
+    }).then((jsonData) => {
+      console.log("BuscaClienteEmpodera deu bom!")
+      let result = jsonData
+     
+      resolve(result)
+    }).catch((err) => {
+      console.log("Erro ao tentar buscar dados do Empodera")  
+      console.log(err)
+      reject(err)
+      //throw err
+  
+    });
+  })
+
+
+}  
+
+
 
 async function fetchRegistroBr(inputAddress) {
 

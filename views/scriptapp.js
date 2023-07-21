@@ -27,6 +27,7 @@ $(function () {
 });
 
 let divEmpodera;
+let clienteEmpodera = false;
 const dropdowns = document.querySelectorAll(".dropdown");
 dropdowns.forEach((dropdown) => {
  dropdown.addEventListener("click", (e) => {
@@ -105,7 +106,7 @@ const toggleButton = document.querySelector('.dark-light');
 toggleButton.addEventListener('click', () => {
   document.body.classList.toggle('light-mode');
 });
-
+document.body.classList.toggle('light-mode');
 
 function salvar() {
 
@@ -132,20 +133,78 @@ let urlaBusca = document.getElementById('busca');
 
   fetch(endereco , requestOptions).then((res) => res.json())
           .then((data) => {
+            console.log("thilla!!!!!")
             console.log(data);
+            let temVtex = false;
+            let temShopify = false;
             $("#titulopagina")[0].innerText = data.title;
 
             $("#resultado")[0].innerText = 'Resultado do Teste: Realizado com sucesso';
             //$("#endereço")[0].innerText = 'Endereco: ' + document.getElementById('busca').value; 
-            /*$("#NumeroTecnologias")[0].innerText = 'Tecnologias Detectadas: ' + data.technologies.length; 
+            $("#NumeroTecnologias")[0].innerText = 'Tecnologias Detectadas: ' + data.technologies.length; 
             $("#contatech")[0].innerText = data.technologies.length;
             $("#ecommerce")[0].innerText = 'Plataforma E-Commerce: ' + data.ecommerce; 
-             montaPaginaTecnologias(data);*/
+             montaPaginaTecnologias(data);
+             montaPaginaTecnologiasEcommerce(data)
+             montaPaginaTecnologiasMarketing(data)
+             console.log("Ofertas TOTVS")
+             if (data.totvsOffers.length == 0) {
+              if (temVtex) {
+                $("#indicaShopify").hide();
+                $("#detectShopify").hide();
+              } else {
+                $("#indicaVtex").hide();
+                $("#detectVtex").hide();
+                $("#indicaShopify").show();
+                $("#detectShopify").hide();
+              }
+              $("#totvsdetectados").hide();
+             } else {
+              for (let contOf = 0; contOf < data.totvsOffers.length; contOf++) {
+                console.log("data.totvsOffers[contOf].slug " + data.totvsOffers[contOf].slug);
+                if (data.totvsOffers[contOf].slug == 'vtex') {
+                  temVtex = true;
+                  $("#indicaVtex").hide();
+                  $("#detectVtex").show();
+                  $("#indicaShopify").hide();
+                  $("#detectShopify").hide();
+                } else if (data.totvsOffers[contOf].slug == 'rd-station') { 
+                  $("#indicaRD").hide();
+                  $("#detectRD").show();
+                } else if (data.totvsOffers[contOf].slug == 'tail') { 
+                  $("#indicaTail").hide();
+                  $("#detectTail").show();
+                } else if (data.totvsOffers[contOf].slug == 'shopify') { 
+                  temShopify = true;
+                  $("#indicaVtex").hide();
+                  $("#detectVtex").hide();
+                  $("#indicaShopify").hide();
+                  $("#detectShopify").show();
+                } 
+              
+              }
+             
+              if (temVtex) {
+                $("#indicaShopify").hide();
+                $("#detectShopify").hide();
+              } else {
+                $("#indicaVtex").hide();
+                $("#detectVtex").hide();
+                $("#indicaShopify").show();
+                $("#detectShopify").hide();
+              }
+
+              if (temShopify) {
+                $("#detectShopify").show();
+              }
+
+              $("#totvsdetectados").show();
+             }
             
-            //$("#endereço")[0].innerText = 'Endereco: ' + document.getElementById('busca').value; 
-            $("#NumeroTecnologias")[0].innerText = 'Tecnologias Detectadas: ' + 3; 
-            $("#contatech")[0].innerText = 3;
-            $("#ecommerce")[0].innerText = 'Plataforma E-Commerce: ' +'TOTVS'; 
+             if (!clienteEmpodera) {
+              console.log('data.cnpjSite ' + data.cnpjSite);
+                carregaEmpodera(data.cnpjSite.split("/")[0]);
+            }
 
 
             $("#Carregando").hide();
@@ -161,6 +220,111 @@ let urlaBusca = document.getElementById('busca');
   });
 
 }
+
+
+//  if (novaCategoria.id == 109) concorreVtex = true;
+//if (novaCategoria.id == 111) concorreRD = true;
+//if (novaCategoria.id == 112) concorreTalos = true;
+
+function montaPaginaTecnologiasMarketing(data) {
+
+  //noInfoAvail("Cliente não localizado na Base TOTVS");
+  let marketingAvail = false;
+
+  var html = [];
+
+  html.push(
+    '<div class="content-section" ><div class="content-section-title">Produtos de Marketing Encontrados</div>',
+    ' <ul>');
+
+    
+
+    for (let contech=0; contech < data.technologies.length; contech++) {
+      console.log("categoria da tecnologias de Marketing")
+      console.log(data.technologies[contech].categories);
+      if (data.technologies[contech].categories[0].id == 111 || data.technologies[contech].categories[0].id == 36  ) {
+          marketingAvail = true;
+          html.push(' <li class="adobe-product">');
+          html.push(' <div class="products">');
+          html.push('&nbsp');
+          html.push(data.technologies[contech].name);
+          html.push(' </div>');
+          html.push('<span class="status">');
+          html.push('<span class="status-circle green"></span>');
+          html.push(data.technologies[contech].categories[0].name);
+          html.push('</span>');
+          //html.push('<span class="status">');
+          //html.push(data.technologies[contech].description);
+          //html.push('</span>');
+
+
+          html.push('<div class="button-wrapper">');
+          html.push('<button class="content-button status-button open">Mais Informações</button>');
+          
+          html.push('</div>');
+          html.push('</li>');
+      }
+    }
+
+    html.push('</ul></div>');
+    if (marketingAvail) {
+      $("#tecnologiasMarketing")[0].innerHTML = html.join("");
+    }  else {
+      $("#tecnologiasMarketing")[0].innerHTML = noInfoAvail("Não foram encontrandos produtos ou componentes de Marketing");
+    } 
+
+}
+
+function montaPaginaTecnologiasEcommerce(data) {
+
+  var html = [];
+
+  //noInfoAvail("Cliente não localizado na Base TOTVS");
+  let EcommerceAvail = false;
+
+  html.push(
+    '<div class="content-section" ><div class="content-section-title">Produtos de Ecommerce Encontrados</div>',
+    ' <ul>');
+
+    
+
+    for (let contech=0; contech < data.technologies.length; contech++) {
+      console.log("categoria da tecnologias")
+      console.log(data.technologies[contech].categories);
+      if (data.technologies[contech].categories[0].id == 6  || data.technologies[contech].categories[0].id == 109) {
+          EcommerceAvail = true;
+          html.push(' <li class="adobe-product">');
+          html.push(' <div class="products">');
+          html.push('&nbsp');
+          html.push(data.technologies[contech].name);
+          html.push(' </div>');
+          html.push('<span class="status">');
+          html.push('<span class="status-circle green"></span>');
+          html.push(data.technologies[contech].categories[0].name);
+          html.push('</span>');
+          //html.push('<span class="status">');
+          //html.push(data.technologies[contech].description);
+          //html.push('</span>');
+
+
+          html.push('<div class="button-wrapper">');
+          html.push('<button class="content-button status-button open">Mais Informações</button>');
+          
+          html.push('</div>');
+          html.push('</li>');
+      }
+    }
+
+    html.push('</ul></div>');
+    
+    if (EcommerceAvail) {
+      $("#tecnologiasEcommerce")[0].innerHTML = html.join("");
+    } else {
+      $("#tecnologiasEcommerce")[0].innerHTML = noInfoAvail("Não foram encontrados produtos ou plataformas de ecommerce.")
+    }
+
+}
+
 
 function montaPaginaTecnologias(data) {
 
@@ -262,6 +426,25 @@ function buscaCliente() {
   console.log("BuscaCliene")
   let method = "POST";
   let urlaBusca = document.getElementById('busca'); 
+  
+  if (urlaBusca.value.indexOf('https://') == -1 && urlaBusca.value.indexOf('http://') == -1) {
+    urlaBusca.value = 'https://' + urlaBusca.value;
+  }
+
+  try {
+    let testaURLInformada = new URL(urlaBusca.value);
+  } catch (erro) {
+    //alert('O Endereço do site Ecommerce informado para a prospecção é inválido. Verifique o endereço informado e tente novamente');
+    $("#Inicial")[0].innerHTML = noInfoAvail("ATENÇÃO! O Endereço do site Ecommerce informado para a prospecção é inválido.<br> Verifique o endereço informado e tente novamente");
+    $("#Carregando").hide();
+    $("#Inicial").show();
+    
+		
+    
+    return;
+    //location.reload(); 
+  }
+
   let registroBr = fetchRegistroBr(new URL(urlaBusca.value));
   registroBr.then(result => {
       return new Promise((resolve, reject) => {
@@ -275,7 +458,7 @@ function buscaCliente() {
         }
 
         
-        console.log("Bumero aqui " + num);
+        console.log("Numero cnpj aqui " + num);
         let urlObject = new URL(urlaBusca.value);
         
         var myHeaders = new Headers();
@@ -304,7 +487,9 @@ function buscaCliente() {
               })
       });
     })
-    console.log("terminou o busca cliente")    
+
+
+    console.log("terminou o busca cliente") ;  
 }
 
 function carregaCliente() {
@@ -403,7 +588,7 @@ function atualizaAbaDadosGovernamentais(clienteAtual) {
 
 function carregaEmpodera(nome) {
   console.log("carregaEmpodera")
-  
+  clienteEmpodera = false;
   buscaEmpodera(nome).then(jsonData => {
 
     
@@ -421,6 +606,7 @@ function carregaEmpodera(nome) {
       } catch (err) {console.log("Zicou aqui!!! " + err)}
       montaTabelaContatos(jsonData);
       montarTabelaOfertasSugeridas(jsonData);
+      clienteEmpodera = true;
 
       }).catch(error => {
         divEmpodera = $("#TOTVS")[0].innerHTML;
@@ -502,6 +688,58 @@ function buscaTrafego() {
           })
   });
 }
+function buscaTrafegoConcorrentes() {
+
+  return new Promise((resolve, reject) => {
+    console.log("BuscaTrafegoConcorrentes");
+    let method = "POST";
+    let urlaBusca = document.getElementById('busca');  
+    var myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+    let raw = JSON.stringify({
+                    "busca" : urlaBusca.value
+                });
+    
+      let requestOptions = {
+            method: method,
+            headers: myHeaders,
+            body: raw,
+            redirect: 'follow'
+          };
+
+      //fetch('/trafego/', requestOptions)
+      fetch('/trafego/concorrentes/', requestOptions)
+          .then(res => res.json())
+          .then(data => {
+            console.log(data);
+
+
+
+
+              resolve(data);
+          })
+          .catch(err => {
+            console.log(err);
+              reject(err);
+          })
+  });
+}
+
+function toFixed(value, precision) {
+  var precision = precision || 0,
+      power = Math.pow(10, precision),
+      absValue = Math.abs(Math.round(value * power)),
+      result = (value < 0 ? '-' : '') + String(Math.floor(absValue / power));
+
+  if (precision > 0) {
+      var fraction = String(absValue % power),
+          padding = new Array(Math.max(precision - fraction.length, 0) + 1).join('0');
+      result += '.' + padding + fraction;
+  }
+  return result;
+}
+
+
 
 function carregaTrafego() {
   console.log("carregaTrafego")
@@ -514,6 +752,8 @@ function carregaTrafego() {
       result = jsonData
 			
       document.getElementById("tituloSite").innerText=result.Title;  
+      $("#titulopagina")[0].innerText=result.Title;  
+      
       document.getElementById("visitas").innerText=Math.ceil(result.Engagments.Visits).toLocaleString();
       document.getElementById("taxa").innerText=(Number.parseFloat(result.Engagments.BounceRate)*100).toFixed(2) + '%';
       document.getElementById("paginas").innerText=Number.parseFloat(result.Engagments.PagePerVisit).toFixed(2);
@@ -523,7 +763,11 @@ function carregaTrafego() {
 				if (Object.values(result.TrafficSources)[icont] == null) {
 					vals.push(0);
 			    } else {
-					vals.push(Object.values(result.TrafficSources)[icont]);
+           
+            let valorTr = Number.parseFloat(Object.values(result.TrafficSources)[icont]);
+            valorTr = valorTr *100;
+          
+					vals.push(Number.parseFloat(valorTr.toFixed(2)));
 				}
 		}		
 		
@@ -594,7 +838,8 @@ function carregaTrafego() {
         }],
           chart: {
           height: 150,
-          type: 'bar',
+          type: 'area',
+          //type: 'bar',
         },
         plotOptions: {
           bar: {
@@ -611,6 +856,7 @@ function carregaTrafego() {
         yaxis: {
           labels: {
             formatter: function(val) {
+              
               return val / 1000
             }
           }
@@ -643,7 +889,8 @@ function carregaTrafego() {
         dataLabels: {
           enabled: true,
           formatter: function (val) {
-            return val ;
+            return new Intl.NumberFormat('pt-BR', { maximumSignificantDigits: 3 }).format(val)
+            //return val ;
           },
           offsetY: -20,
           style: {
@@ -687,7 +934,8 @@ function carregaTrafego() {
           labels: {
             show: false,
             formatter: function (val) {
-              return val;
+              return new Intl.NumberFormat('pt-BR', { maximumSignificantDigits: 3 }).format(val)
+              //return val;
             }
           }
         
@@ -708,11 +956,32 @@ function carregaTrafego() {
 
 
                       
-  }).catch(error => {
-      console.log(error);
-      throw('Erro ' + error);
+    }).catch(error => {
+        console.log(error);
+        throw('Erro ' + error);
 
-});
+  });
+   
+  //JOAO
+  buscaTrafegoConcorrentes().then(jsonData => {
+    console.log("Concluiu o buscaTrafegoConcorrentes");
+    console.dir(jsonData);
+    
+    let txtConcorrentes = '<div class="content-section-title">Principais Concorrentes Orgânicos</div><ul> ';
+
+    jsonData.organicCompetitors.forEach((concorrente) => {
+      txtConcorrentes = txtConcorrentes  + '<li class="adobe-product"><div class="products">' + concorrente.domain 
+                      + '</div><span class="status" ><span class="status-circle green"></span>Termos: ' 
+                      + concorrente.commonTerms + '</span><div class="menu"></div></li> ';
+  })
+  txtConcorrentes = txtConcorrentes + "</ul></div>";
+
+    document.getElementById("quadroconcorrentes").innerHTML=txtConcorrentes;
+    
+
+  });
+
+
 
 }
 
@@ -733,6 +1002,44 @@ function mostraTecnologias(){
 
 
 }
+
+function mostraTecnologiasEcommerce(){
+
+ 
+  $(".content-wrapper").each(function() { 
+    console.log('$(this)[0].id ' + $(this)[0].id);
+	if ($(this)[0].id == 'tecnologiasEcommerce') {
+    console.log("Vai mostrar!!!!");
+		$(this).show(); 
+	} else {
+		$(this).hide();
+    }		
+	
+	
+  })
+
+
+}
+
+function mostraTecnologiasMarketing(){
+
+ 
+  $(".content-wrapper").each(function() { 
+    console.log('$(this)[0].id ' + $(this)[0].id);
+	if ($(this)[0].id == 'tecnologiasMarketing') {
+    console.log("Vai mostrar!!!! marketing");
+		$(this).show(); 
+	} else {
+		$(this).hide();
+    }		
+	
+	
+  })
+
+
+}
+
+
 
 function montarTabelaOfertasSugeridas(data) {
 
@@ -828,6 +1135,22 @@ async function fetchRegistroBr(inputAddress) {
       });
   })
 }
+
+function buscaClientePlugin(site) {
+
+
+  $('#busca')[0].value = site;
+
+  $("#Inicial").hide();
+  $("#Resultados").hide();
+  $("#Carregando").show();
+  salvar();
+  carregaCliente();
+    
+  
+  carregaTrafego();
+}
+
 
 function noInfoAvail(mensagem) {
   let html = [];
