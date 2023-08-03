@@ -435,7 +435,7 @@ function buscaCliente() {
     let testaURLInformada = new URL(urlaBusca.value);
   } catch (erro) {
     //alert('O Endereço do site Ecommerce informado para a prospecção é inválido. Verifique o endereço informado e tente novamente');
-    $("#Inicial")[0].innerHTML = noInfoAvail("ATENÇÃO! O Endereço do site Ecommerce informado para a prospecção é inválido.<br> Verifique o endereço informado e tente novamente");
+    $("#Inicial")[0].innerHTML = noInfoAvail("ATENÇÃO! O Endereço do site Ecommerce informado para a prospecção é inválido.<br > Verifique o endereço informado e tente novamente");
     $("#Carregando").hide();
     $("#Inicial").show();
     
