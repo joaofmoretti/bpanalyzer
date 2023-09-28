@@ -135,7 +135,7 @@ let urlaBusca = document.getElementById('busca');
           .then((data) => {
             console.log("thilla!!!!!")
             console.log(data);
-            let temVtex = false;
+            
             let temShopify = false;
             $("#titulopagina")[0].innerText = data.title;
 
@@ -149,26 +149,12 @@ let urlaBusca = document.getElementById('busca');
              montaPaginaTecnologiasMarketing(data)
              console.log("Ofertas TOTVS")
              if (data.totvsOffers.length == 0) {
-              if (temVtex) {
-                $("#indicaShopify").hide();
-                $("#detectShopify").hide();
-              } else {
-                $("#indicaVtex").hide();
-                $("#detectVtex").hide();
-                $("#indicaShopify").show();
-                $("#detectShopify").hide();
-              }
+              
               $("#totvsdetectados").hide();
              } else {
               for (let contOf = 0; contOf < data.totvsOffers.length; contOf++) {
                 console.log("data.totvsOffers[contOf].slug " + data.totvsOffers[contOf].slug);
-                if (data.totvsOffers[contOf].slug == 'vtex') {
-                  temVtex = true;
-                  $("#indicaVtex").hide();
-                  $("#detectVtex").show();
-                  $("#indicaShopify").hide();
-                  $("#detectShopify").hide();
-                } else if (data.totvsOffers[contOf].slug == 'rd-station') { 
+                 if (data.totvsOffers[contOf].slug == 'rd-station') { 
                   $("#indicaRD").hide();
                   $("#detectRD").show();
                 } else if (data.totvsOffers[contOf].slug == 'tail') { 
@@ -176,23 +162,15 @@ let urlaBusca = document.getElementById('busca');
                   $("#detectTail").show();
                 } else if (data.totvsOffers[contOf].slug == 'shopify') { 
                   temShopify = true;
-                  $("#indicaVtex").hide();
-                  $("#detectVtex").hide();
+                 
+                  
                   $("#indicaShopify").hide();
                   $("#detectShopify").show();
                 } 
               
               }
              
-              if (temVtex) {
-                $("#indicaShopify").hide();
-                $("#detectShopify").hide();
-              } else {
-                $("#indicaVtex").hide();
-                $("#detectVtex").hide();
-                $("#indicaShopify").show();
-                $("#detectShopify").hide();
-              }
+              
 
               if (temShopify) {
                 $("#detectShopify").show();
@@ -467,7 +445,7 @@ function buscaCliente() {
                         "busca" : num
                     });
         
-          let requestOptions = {
+          let requestOptions = {    
                 method: method,
                 headers: myHeaders,
                 body: raw,
@@ -604,6 +582,15 @@ function carregaEmpodera(nome) {
       try {
         $("#nps")[0].innerText = jsonData[0].healthscore.empoderaArea.measures.nps.total;
       } catch (err) {console.log("Zicou aqui!!! " + err)}
+
+      try {
+        $("#mrr")[0].innerText = jsonData[0].finance.mrr;
+        $("#segmento")[0].innerText =  jsonData[0].finance.segmento
+      } catch (err) {console.log("Zicou aqui!!! " + err)}
+
+
+
+
       montaTabelaContatos(jsonData);
       montarTabelaOfertasSugeridas(jsonData);
       clienteEmpodera = true;
@@ -675,8 +662,8 @@ function buscaTrafego() {
             redirect: 'follow'
           };
 
-      //fetch('/trafego/', requestOptions)
-      fetch(corsServer + '/?' + SIMILARWEB_BASE_URL + urlaBusca.value, {})
+      fetch('/trafego/', requestOptions)
+      //fetch(corsServer + '/?' + SIMILARWEB_BASE_URL + urlaBusca.value, {})
           .then(res => res.json())
           .then(data => {
             console.log(data);

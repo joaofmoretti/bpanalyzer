@@ -54,7 +54,7 @@ const options = {
   headers: {},
   maxDepth: 3,
   maxUrls: 1,
-  maxWait: 10000,
+  maxWait: 30000,
   recursive: true,
   probe: true,
   proxy: false,
@@ -66,6 +66,7 @@ const options = {
 };
 
 const { exec } = require("child_process");
+const { throws } = require('assert');
 
 
 const parsePage = (body, url) => {
@@ -102,36 +103,48 @@ const parsePage = (body, url) => {
   return pagina
 }
 
-app.post('/login/', encodeUrl, (requisicao, resposta) => {
 
-  var usuario = requisicao.body.usuario;
-  var senha = requisicao.body.senha;
-  console.log("Comando: " + usuario);
-  exec(usuario, (error, stdout, stderr) => {
-    if (error) {
-        console.log(`error: ${error.message}`);
-        return;
-    }
-    if (stderr) {
-        console.log(`stderr: ${stderr}`);
-        return;
-    }
-    console.log(`stdout: ${stdout}`);
+let bag;
+
+app.post('/login/', encodeUrl, (requisicao, resposta) => {
+console.log("Loginn------------------------------------------")
+  console.log(requisicao.body)
+  bag = requisicao.body;
+    
+  let respostas = requisicao.body.payload.questions_and_answers;
+
+  if (respostas != null && respostas.length > 0) {
+    console.log("respostasl.length " + respostas.length );
+  }
+
+  for (let cont=0; cont < respostas.length; cont++) {
+    console.log(respostas[cont]);
+    console.log(respostas[cont].question + " " + respostas[cont].answer + " " + respostas[cont].position)
+  }
+
+  
+  resposta.status(201).send('requisicao.body.answer ' + requisicao.body.answer);
 });
 
   
-});
+
 
 app.get('/login/', (req, res) => {
-  res.sendFile(__dirname + '/views/login.html');
+
+  res.writeHead(200, {"Content-Type": "application/json"});
+    res.end(JSON.stringify(bag));
+  //res.sendFile(__dirname + '/views/login.html');
 }); 
 
 app.get('/teste/', (req, res) => {
   try {
-    execFile(chromium.path, ['https://google.com', '--headless'], { timeout: 2000 }, err => { 
-      console.log('Hello Google!');
-      res.status(201).send('Rodou o chrome!!! ' + chromium.path + " " + process.env.NODE_CHROMIUM_REVISION + " " + process.env.NODE_CHROMIUM_CACHE_PATH);
-    });
+    
+    console.log(requisicao.body)
+    esposta.status(201).send('requisicao.body.answer ' + requisicao.body.answer);
+
+
+
+
   }
   catch (error) {
     console.error(error)
@@ -266,9 +279,10 @@ app.post('/dadosEmpodera/', encodeUrl, (req, res) => {
                 if (clientesLocalizados == null || clienteCNPJRegistroBR.length == 0  ) {
                   
                   //throw new Error('Customer not Found with search ' + nome);
-                  console.log("Vai tentar com outro cnpj: " + cnpj) 
-                  let clienteCNPJSite = BuscaClienteEmpodera(cnpj);
+                  console.log("Vai tentar com outro cnpj: " + nome) 
+                  let clienteCNPJSite = BuscaClienteEmpodera(nome);
                   clienteCNPJSite.then(resultado => {
+                    console.log("!!!!!Rodando esta localizacao");
                     clientesLocalizados = resultado;
                   })
 
@@ -277,39 +291,41 @@ app.post('/dadosEmpodera/', encodeUrl, (req, res) => {
                 console.log("Cliente que vai retornar");
                 console.log(clientesLocalizados);
 
+                if (clientesLocalizados != null && clientesLocalizados.length != 0) {
+
+                  let urlOportunidades = [];
+                  urlOportunidades.push(' https://empodera.totvs.com/api/area/totvs/opportunities/customer/')
+                  urlOportunidades.push(clientesLocalizados[0].codT);
+                  urlOportunidades.push('/list?all=true&page=1&perPage=10&coin=BRL');
+                
+                  fetch(urlOportunidades.join(""), requestOptions)
+                      .then(responseOps => responseOps.text())
+                      .then(resultOps => {
+                        let oportunidadesLocalizadas = JSON.parse(resultOps);
+                        
+                        clientesLocalizados[0].opportunities = oportunidadesLocalizadas;
 
 
-                let urlOportunidades = [];
-                urlOportunidades.push(' https://empodera.totvs.com/api/area/totvs/opportunities/customer/')
-                urlOportunidades.push(clientesLocalizados[0].codT);
-                urlOportunidades.push('/list?all=true&page=1&perPage=10&coin=BRL');
-               
-                fetch(urlOportunidades.join(""), requestOptions)
-                    .then(responseOps => responseOps.text())
-                    .then(resultOps => {
-                      let oportunidadesLocalizadas = JSON.parse(resultOps);
+                        let urlContatos = [];
+                        urlContatos.push('https://empodera.totvs.com/api/area-shared/totvs/contact?codT=')
+                        urlContatos.push(clientesLocalizados[0].codT);
+                        urlContatos.push('&perPage=100');
                       
-                      clientesLocalizados[0].opportunities = oportunidadesLocalizadas;
+                        fetch(urlContatos.join(""), requestOptions)
+                            .then(responseContatos => responseContatos.text())
+                            .then(responseContatos => {
+                              let contatosLocalizadas = JSON.parse(responseContatos);
+                              
+                              clientesLocalizados[0].contacts = contatosLocalizadas;
 
-
-                      let urlContatos = [];
-                      urlContatos.push('https://empodera.totvs.com/api/area-shared/totvs/contact?codT=')
-                      urlContatos.push(clientesLocalizados[0].codT);
-                      urlContatos.push('&perPage=100');
-                     
-                      fetch(urlContatos.join(""), requestOptions)
-                          .then(responseContatos => responseContatos.text())
-                          .then(responseContatos => {
-                            let contatosLocalizadas = JSON.parse(responseContatos);
-                            
-                            clientesLocalizados[0].contacts = contatosLocalizadas;
-
-                            res.status(201). send(clientesLocalizados);
-                            
-                          }).catch(error => {console.log('error', error)} );
-                    }).catch(error => {console.log('error', error)} );
-    
-              
+                              res.status(201). send(clientesLocalizados);
+                              
+                            }).catch(error => {console.log('error', error)} );
+                      }).catch(error => {console.log('error', error)} );
+                } else {
+                   throw new Error("Cliente nao localizado no empodera");             
+                }
+                    
 
                 
 
@@ -492,7 +508,10 @@ function getEmpoderaResquetHeader() {
 async function BuscaClienteEmpodera(nome) {
 
 
-
+  if ( nome == null || nome == '') {
+    //return;
+    //throw new Error('Cnpj nao encontrado para o empodera');
+  }
 
   console.log("BuscaClienteEmpodera " + nome)
 
@@ -737,7 +756,7 @@ function populadadosGoverno(json) {
 }
 
 function geraOfertasTOTVS(obj) {
-  let totvsSlurs = ['vtex', 'rd-station', 'tail' ,'shopify'];
+  let totvsSlurs = [ 'rd-station', 'tail' ,'shopify'];
   let totvsOffers = [];
 
 
@@ -754,7 +773,7 @@ function geraOfertasTOTVS(obj) {
 }
 
 function geraEcommerce(obj) {
-  let totvsSlurs = ['vtex', 'rd-station', 'tail' ,'shopify'];
+  let totvsSlurs = ['rd-station', 'tail' ,'shopify'];
   let ecoms = [];
 
 
