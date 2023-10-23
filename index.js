@@ -442,21 +442,21 @@ app.post('/prospectaSite/', encodeUrl, (req, res) => {
 
     
               
-        var myHeaders = new Headers();
-        myHeaders.append("Content-Type", "application/json");
+        var cabecalho = new Headers();
+        cabecalho.append("Content-Type", "application/json");
 
         var raw = JSON.stringify({
           "busca": url
         });
 
-        var requestOptions = {
+        var opcoesDeRequisicao = {
           method: 'POST',
-          headers: myHeaders,
+          headers: cabecalho,
           body: raw,
           redirect: 'follow'
         };
 
-        fetch("http://179.223.166.224:3000/wservice", requestOptions)
+        fetch("http://179.223.166.224:3000/wservice", opcoesDeRequisicao)
         .then(response => response.json())  // converter para json
         .then(json => {res.send(json);})    //imprimir dados no console
         .catch(err => console.log('Erro de solicitação', err));
