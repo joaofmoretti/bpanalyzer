@@ -2,6 +2,12 @@ const Wappalyzer = require('wappalyzer')
 const {execFile} = require('child_process');
 const cors = require('cors');
 
+//const fs = require('fs');
+//const key = fs.readFileSync('./ca/servidor.decrypted.key');
+//const cert = fs.readFileSync('./ca/servidor.crt');
+
+//const https = require('https');
+
 let express = require('express');
 let bodyParser = require('body-parser');
 let app = express();
@@ -15,7 +21,7 @@ app.use(express.static(__dirname + '/views/form.html'));
 app.use(express.static(__dirname + '/views/styleforms.css'));
 app.use(express.static(__dirname + '/views/form.js'));
 app.use(express.static(__dirname + '/views/totvs-logob.png'));
-console.log(__dirname);
+//console.log(__dirname);
 app.use(express.static(__dirname + '/views/login.html'));
 app.use(express.static(__dirname + '/views/stylelogin.css'));
 app.use(express.static(__dirname + '/views/totvs-logob.png'));
@@ -227,10 +233,16 @@ app.get('/RDStation.png', (req, res) => {
   res.sendFile(__dirname + '/views/RDStation.png'); 
 });
 
-app.listen(process.env.PORT || 80, () => {
-    console.log("Aplicação de subiu na porta 80");
+app.listen(process.env.PORT || 3000, () => {
+    console.log("Aplicação de subiu na porta 3000");
 });
 
+//const server = https.createServer({ key, cert }, app);
+
+//const port = 3000;
+//server.listen(port, () => {
+  //console.log('Servidor está rodando com https na porta 3000');
+//});
 
 
 app.get('/form/', (req, res) => {
@@ -273,7 +285,7 @@ app.post('/dadosEmpodera/', encodeUrl, (req, res) => {
   
   clienteCNPJRegistroBR.then(result => { 
                 console.log("Resultado empodera!!!")
-                console.log(result)
+                //console.log(result)
                 let clientesLocalizados = result;
                
                 if (clientesLocalizados == null || clienteCNPJRegistroBR.length == 0  ) {
@@ -287,9 +299,9 @@ app.post('/dadosEmpodera/', encodeUrl, (req, res) => {
                   })
 
                 }
-                
+                 
                 console.log("Cliente que vai retornar");
-                console.log(clientesLocalizados);
+                //console.log(clientesLocalizados);
 
                 if (clientesLocalizados != null && clientesLocalizados.length != 0) {
 
@@ -333,9 +345,7 @@ app.post('/dadosEmpodera/', encodeUrl, (req, res) => {
 }).catch(error => {console.log('error', error); res.status(404). send();} );
 })
 
-
-
-app.post('/prospectaSite/', encodeUrl, (req, res) => {
+app.post('/wservice/', encodeUrl, (req, res) => {
   
   
   url = req.body.busca;
@@ -347,8 +357,7 @@ app.post('/prospectaSite/', encodeUrl, (req, res) => {
     url = 'https://' + url;
   }
 
-  console.log("propsectaSite URL " + url);
-
+  console.log("Wservice URL " + url + ' ' + Date());
 
  
   
@@ -398,6 +407,61 @@ app.post('/prospectaSite/', encodeUrl, (req, res) => {
   
                     })   
  
+    
+  } catch (error) {
+    console.log("Erro da prospecção inteira")
+    console.error(error)
+    res.status(404).send("erro de prospecção");
+  }
+
+  
+
+
+  
+})
+
+
+app.post('/prospectaSite/', encodeUrl, (req, res) => {
+  
+  
+  url = req.body.busca;
+  console.log(req.body);
+
+  url = url.toLowerCase();
+
+  if (url.indexOf('http') == -1) {
+    url = 'https://' + url;
+  }
+
+  console.log("propsectaSite URL " + url + ' ' + Date());
+
+
+ 
+  
+  try {
+
+    
+              
+        var myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+
+        var raw = JSON.stringify({
+          "busca": url
+        });
+
+        var requestOptions = {
+          method: 'POST',
+          headers: myHeaders,
+          body: raw,
+          redirect: 'follow'
+        };
+
+        fetch("http://179.223.166.224:3000/wservice", requestOptions)
+        .then(response => response.json())  // converter para json
+        .then(json => {res.send(json);})    //imprimir dados no console
+        .catch(err => console.log('Erro de solicitação', err));
+         
+             
     
   } catch (error) {
     console.log("Erro da prospecção inteira")
@@ -617,8 +681,8 @@ app.post('/trafego/', encodeUrl,   (req, res) => {
         return response.json();
       }).then((jsonData) => {
         result = jsonData
-        console.log("Moretti greatest hit ?")
-        console.log(result)
+        //console.log("Moretti greatest hit ?")
+        //console.log(result)
         res.send(jsonData);
         resolve(result)
       }).catch((err) => {
@@ -707,8 +771,8 @@ function fetchSimilarWeb(inputAddress) {
 
 function extractsCNPJ(resultsArray){
     console.log("Chegou aqui");
-    console.dir(resultsArray);
-    console.log(resultsArray[0]);
+    //console.dir(resultsArray);
+    //console.log(resultsArray[0]);
     let cnpjValue = resultsArray[0].replace(/\D/g,'').substring(0,14);
     let numeroCNPJ = resultsArray[0].replace(/\D/g,'').substring(0,14);
     cnpjValue = cnpjValue.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
