@@ -677,6 +677,8 @@ app.post('/trafego/', encodeUrl,   (req, res) => {
   return new Promise((resolve, reject) => {
     fetch(corsServer +'/?' + SIMILARWEB_BASE_URL + urlHost)
       .then((response) => {
+        console.log("resposta similar Web");
+        console.log(response);
         if (!response.ok) return resolve(result)
         return response.json();
       }).then((jsonData) => {
@@ -686,6 +688,7 @@ app.post('/trafego/', encodeUrl,   (req, res) => {
         res.send(jsonData);
         resolve(result)
       }).catch((err) => {
+        console.log("Erro ao buscar trafego");
         res.status(404).send(err);
         console.log(err);
       });  

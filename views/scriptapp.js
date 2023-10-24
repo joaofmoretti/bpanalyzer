@@ -662,7 +662,7 @@ function buscaTrafego() {
             redirect: 'follow'
           };
 
-      fetch('/trafego/', requestOptions)
+      fetch('http://179.223.166.224:3000/trafego/', requestOptions)
       //fetch(corsServer + '/?' + SIMILARWEB_BASE_URL + urlaBusca.value, {})
           .then(res => res.json())
           .then(data => {
@@ -887,7 +887,7 @@ function carregaTrafego() {
         },
         
         xaxis: {
-          categories: ["Fevereiro", "Março", "Abril"], //Object.keys(result.EstimatedMonthlyVisits),
+          categories: ["Julho", "Agosto", "Setembro"], //Object.keys(result.EstimatedMonthlyVisits),
           position: 'top',
           axisBorder: {
             show: false
