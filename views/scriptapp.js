@@ -662,8 +662,8 @@ function buscaTrafego() {
             redirect: 'follow'
           };
 
-      fetch('http://179.223.166.224:3000/trafego/', requestOptions)
-      //fetch(corsServer + '/?' + SIMILARWEB_BASE_URL + urlaBusca.value, {})
+     // fetch('http://179.223.166.224:3000/trafego/', requestOptions)
+      fetch(corsServer + '/?' + SIMILARWEB_BASE_URL + urlaBusca.value, {})
           .then(res => res.json())
           .then(data => {
             console.log(data);
