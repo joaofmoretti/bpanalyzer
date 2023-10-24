@@ -679,13 +679,17 @@ app.post('/trafego/', encodeUrl,   (req, res) => {
       .then((response) => {
         console.log("resposta similar Web");
         console.log(response);
+        console.log("response.ok");
+        console.log(response.ok)
+
+
         if (!response.ok) return resolve(result)
         return response.json();
       }).then((jsonData) => {
         result = jsonData
-        //console.log("Moretti greatest hit ?")
-        //console.log(result)
-        res.send(jsonData);
+        console.log("Moretti greatest hit ?")
+        console.log(result)
+        res.status(200).send(jsonData);
         resolve(result)
       }).catch((err) => {
         console.log("Erro ao buscar trafego");
