@@ -686,6 +686,7 @@ app.post('/trafego/', encodeUrl,   (req, res) => {
         res.send(jsonData);
         resolve(result)
       }).catch((err) => {
+        res.status(404).send(err);
         console.log(err);
       });  
 
