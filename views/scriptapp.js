@@ -26,7 +26,12 @@ $(function () {
  });
 });
 
-let divEmpodera;
+let cloneTOTVS = JSON.stringify($("#TOTVS")[0].innerHTML);
+let cloneOfertas = JSON.stringify($("#Ofertas")[0].innerHTML);
+let cloneGovernamentais = JSON.stringify($("#Governamentais")[0].innerHTML);
+let cloneTrafego = JSON.stringify($("#Tráfego")[0].innerHTML);
+
+
 let clienteEmpodera = false;
 const dropdowns = document.querySelectorAll(".dropdown");
 dropdowns.forEach((dropdown) => {
@@ -49,7 +54,8 @@ $(".search-bar input")
     $("#Inicial").hide();
     $("#Resultados").hide();
 		$("#Carregando").show();
-		salvar();
+    resetPaginas();
+		prospectar();
     carregaCliente();
       
     
@@ -108,7 +114,7 @@ toggleButton.addEventListener('click', () => {
 });
 document.body.classList.toggle('light-mode');
 
-function salvar() {
+function prospectar() {
 
   
   let method = "POST";
@@ -570,10 +576,9 @@ function carregaEmpodera(nome) {
   buscaEmpodera(nome).then(jsonData => {
 
     
-      if (divEmpodera != null) {
-        $("#TOTVS")[0].innerHTML = divEmpodera;
-      }
-      console.log("é agoraaaaaaa!!!!!");
+  
+      
+      console.log("carregaEmpodera ");
       console.log(jsonData);
       $("#codigot")[0].innerText = 'CódigoT: ' + jsonData[0].codT + ' - ' + jsonData[0].name;
       $("#assinatura")[0].innerText = new Intl.DateTimeFormat(['ban', 'id']).format(new Date(jsonData[0].lifetime.firstSign));
@@ -596,10 +601,11 @@ function carregaEmpodera(nome) {
       clienteEmpodera = true;
 
       }).catch(error => {
-        divEmpodera = $("#TOTVS")[0].innerHTML;
+        
           console.log(error);
+          
           $("#TOTVS")[0].innerHTML = noInfoAvail("Cliente não localizado na Base TOTVS");
-          throw('Erro empodera!' + error);
+          //throw('Erro empodera!' + error);
           
 
       });
@@ -1131,13 +1137,21 @@ function buscaClientePlugin(site) {
   $("#Inicial").hide();
   $("#Resultados").hide();
   $("#Carregando").show();
-  salvar();
+  prospectar();
   carregaCliente();
     
   
   carregaTrafego();
 }
 
+function resetPaginas() {
+  $("#TOTVS")[0].innerHTML = JSON.parse(cloneTOTVS);
+  $("#Ofertas")[0].innerHTML = JSON.parse(cloneOfertas);
+  $("#Governamentais")[0].innerHTML = JSON.parse(cloneGovernamentais);
+  $("#Tráfego")[0].innerHTML = JSON.parse(cloneTrafego);
+
+  
+}
 
 function noInfoAvail(mensagem) {
   let html = [];
