@@ -109,9 +109,20 @@ const parsePage = (body, url) => {
   return pagina
 }
 
+let webhookbody;
+
+app.get('/webhook/', (req, res) => {
+
+  res.writeHead(200, {"Content-Type": "application/json"});
+    res.end(JSON.stringify(webhookbody));
+  //res.sendFile(__dirname + '/views/login.html');
+}); 
+
+
 app.post('/webhook/', encodeUrl, (requisicao, resposta) => {
   console.log("webhoook------------------------------------------")
   console.log(requisicao.body)
+  webhookbody = requisicao.body;
   let nomeEmpresa = requisicao.body.payload.questions_and_answers.find((q) => q.question == 'Empresa').answer;
   let escopo = requisicao.body.payload.questions_and_answers.find((q) => q.position == 4).answer;
   let apresentador = retornaApresentador(requisicao.body);
@@ -132,7 +143,40 @@ app.post('/webhook/', encodeUrl, (requisicao, resposta) => {
 
   fetch(url, options)
   .then(res => res.json())
-  .then(json => resposta.status(201).send(json))
+  .then(empresa => {
+
+   options.body = JSON.stringify({
+      campaign: {_id: '6532c91f3ae6b1000de593a5'},
+      deal: {
+        deal_stage_id: '651f23bc471bcb000d59202c',
+        name: oferta + ' - ' + nomeEmpresa,
+        rating: 2,
+        user_id: '63514b20a7e955000c0ece48',
+        deal_custom_fields: [
+          {custom_field_id: '63763ae8c62c24000cbc1032', value: oferta},
+          {custom_field_id: '63505233968a250014767d55', value: nomeUnidade},
+          {custom_field_id: '63ced2631bc670000ca81466', value: 'Gabriela Cidade (RD)'},
+          {custom_field_id: '6544fe33f62610000d22077d', value: '/joão moretti detested'}
+        ]
+      },
+      deal_source: {_id: '6556783ed1f311000f84c37c'},
+      organization: {_id: empresa._id},
+      contacts: [
+        {
+          emails: [{email: 'joaomoretti@gmail.com'}],
+          name: nomeCliente,
+          title: 'desenvolvedor',
+          phones: [{type: 'cellphone', phone: telefoneCliente}]
+        }
+      ]
+    })
+
+
+
+
+
+
+                    resposta.status(201).send(json)})
   .catch(err => resposta.status(401).send(err));
   
 
