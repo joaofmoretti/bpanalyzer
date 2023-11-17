@@ -121,7 +121,7 @@ app.get('/webhook/', (req, res) => {
 
 app.post('/webhook/', encodeUrl, (requisicao, resposta) => {
   console.log("webhoook------------------------------------------")
-  console.log(requisicao.body)
+  //console.log(requisicao.body)
   webhookbody = requisicao.body;
   let nomeEmpresa = requisicao.body.payload.questions_and_answers.find((q) => q.question == 'Empresa').answer;
   let escopo = requisicao.body.payload.questions_and_answers.find((q) => q.position == 4).answer;
@@ -130,9 +130,22 @@ app.post('/webhook/', encodeUrl, (requisicao, resposta) => {
   let nomeCliente = requisicao.body.payload.questions_and_answers.find((q) => q.position == 1).answer;
   let nomeUnidade = requisicao.body.payload.questions_and_answers.find((q) => q.position == 5).answer;
   let oferta = requisicao.body.payload.scheduled_event.name.toUpperCase().replace('E-COMMERCE B2B', '');
+  let cargoCliente = requisicao.body.payload.questions_and_answers.find((q) => q.position == 3).answer;
+  let campaingId = '64ff5da9a20f3100018f6d9e';
+  let sourceId = '63651c290de1b20019712080';
+  let emailRequisitante = requisicao.body.payload.email.toString().toLowerCase();
+  let fonteRD = (emailRequisitante.indexOf("rdstation.com") > -1)
+  let nomeAPN;
 
-
-
+  if (fonteRD) {
+      campaingId = '6532c91f3ae6b1000de593a5';
+      sourceId = '6556783ed1f311000f84c37c';
+      if (emailRequisitante == 'jonathan.lopes@rdstation.com') {
+        nomeAPN = 'Jonathan Lopes (RD)';
+      } else if (emailRequisitante == 'gabriela.cidade@rdstation.com') {
+        nomeAPN = 'Gabriela Cidade (RD)';
+      }
+  }
 
   let url = 'https://crm.rdstation.com/api/v1/organizations?token=6303f05b46f5b6001b61b603';
   let options = {
@@ -146,89 +159,54 @@ app.post('/webhook/', encodeUrl, (requisicao, resposta) => {
   .then(empresa => {
 
    options.body = JSON.stringify({
-      campaign: {_id: '6532c91f3ae6b1000de593a5'},
+      campaign: {_id: campaingId},
       deal: {
         deal_stage_id: '651f23bc471bcb000d59202c',
         name: oferta + ' - ' + nomeEmpresa,
         rating: 2,
-        user_id: '63514b20a7e955000c0ece48',
+        user_id: apresentador.id,
         deal_custom_fields: [
           {custom_field_id: '63763ae8c62c24000cbc1032', value: oferta},
           {custom_field_id: '63505233968a250014767d55', value: nomeUnidade},
-          {custom_field_id: '63ced2631bc670000ca81466', value: 'Gabriela Cidade (RD)'},
-          {custom_field_id: '6544fe33f62610000d22077d', value: '/joão moretti detested'}
+          {custom_field_id: '63ced2631bc670000ca81466', value: nomeAPN},
+          {custom_field_id: '6544fe33f62610000d22077d', value: requisicao.body.payload.name}
         ]
       },
-      deal_source: {_id: '6556783ed1f311000f84c37c'},
+      deal_source: {_id: sourceId},
       organization: {_id: empresa._id},
       contacts: [
         {
-          emails: [{email: 'joaomoretti@gmail.com'}],
+          //emails: [{email: requisicao.body.payload.email}],
           name: nomeCliente,
-          title: 'desenvolvedor',
+          title: cargoCliente,
           phones: [{type: 'cellphone', phone: telefoneCliente}]
         }
       ]
+    });
+    url = 'https://crm.rdstation.com/api/v1/deals?token=6303f05b46f5b6001b61b603';
+    fetch(url, options)
+    .then(res => res.json())
+    .then(oportunidade => { 
+          options.body = JSON.stringify({
+                            activity: {
+                              deal_id: oportunidade._id,
+                              text: escopo,
+                              user_id: apresentador.id
+                            }});
+
+          url = 'https://crm.rdstation.com/api/v1/activities?token=6303f05b46f5b6001b61b603';                 
+          
+          fetch(url, options)
+          .then(res => res.json())
+          .then(comentario => { resposta.status(201).send()})})
+          .catch(err => resposta.status(401).send(err));
+
     })
-
-
-
-
-
-
-                    resposta.status(201).send(json)})
-  .catch(err => resposta.status(401).send(err));
-  
-
-  ;
-})
-
-
-app.post('/login/', encodeUrl, (requisicao, resposta) => {
-  console.log("Loginn------------------------------------------")
-  console.log(requisicao.body)
- 
-    
-  let respostas = requisicao.body.payload.questions_and_answers;
-
-  if (respostas != null && respostas.length > 0) {
-    console.log("respostasl.length " + respostas.length );
-  }
-
-  for (let cont=0; cont < respostas.length; cont++) {
-    console.log(respostas[cont]);
-    console.log(respostas[cont].question + " " + respostas[cont].answer + " " + respostas[cont].position)
-  }
-
-  
-  resposta.status(201).send('requisicao.body.answer ' + requisicao.body.answer);
-});
-
+    .catch(err => resposta.status(401).send(err));
+  })
   
 
 
-app.get('/login/', (req, res) => {
-
-  res.writeHead(200, {"Content-Type": "application/json"});
-    res.end(JSON.stringify(bag));
-  //res.sendFile(__dirname + '/views/login.html');
-}); 
-
-app.get('/teste/', (req, res) => {
-  try {
-    
-    console.log(requisicao.body)
-    esposta.status(201).send('requisicao.body.answer ' + requisicao.body.answer);
-
-
-
-
-  }
-  catch (error) {
-    console.error(error)
-    res.status(404). send(error);
-  }
-}); 
 
 app.get('/form/styleforms.css', (req, res) => {
     res.sendFile(__dirname + '/views/styleforms.css'); 
