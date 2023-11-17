@@ -137,7 +137,7 @@ app.post('/webhook/', encodeUrl, (requisicao, resposta) => {
   let fonteRD = (emailRequisitante.indexOf("rdstation.com") > -1)
   let nomeAPN;
 
- console.log("Oferta: " + Oferta);
+ console.log("Oferta: " + oferta);
 
 
   if (fonteRD) {
