@@ -122,37 +122,49 @@ app.get('/webhook/', (req, res) => {
 app.post('/webhook/', encodeUrl, (requisicao, resposta) => {
   console.log("webhoook------------------------------------------")
   console.log(requisicao.body);
-  webhookbody = requisicao.body;
-  return;
+  //webhookbody = requisicao.body;
+  
   let nomeEmpresa = requisicao.body.payload.questions_and_answers.find((q) => q.question == 'Empresa').answer;
   let escopo = requisicao.body.payload.questions_and_answers.find((q) => q.position == 4).answer;
   let apresentador = retornaApresentador(requisicao.body);
-  //let origem = requisicao.body.payload.questions_and_answers.find((q) => q.question == 'Celular do Cliente').answer;
+  let origem = requisicao.body.payload.questions_and_answers.find((q) => q.position == 6).answer
   let telefoneCliente = requisicao.body.payload.questions_and_answers.find((q) => q.question == 'Celular do Cliente').answer;
   let nomeCliente = requisicao.body.payload.questions_and_answers.find((q) => q.position == 1).answer;
   let nomeUnidade = requisicao.body.payload.questions_and_answers.find((q) => q.position == 5).answer;
   let oferta = requisicao.body.payload.scheduled_event.name.toUpperCase().trim().replace('E-COMMERCE B2B', '');
   let cargoCliente = requisicao.body.payload.questions_and_answers.find((q) => q.position == 3).answer;
-  let campaingId = '64ff5da9a20f3100018f6d9e';
+  let campaingId = '6532c91f3ae6b1000de593a5';
   let sourceId = '63651c290de1b20019712080';
   let emailRequisitante = requisicao.body.payload.email.toString().toLowerCase();
-  let fonteRD = (emailRequisitante.indexOf("rdstation.com") > -1)
+  let fonteRD = (origem == "RD STATION");
   let nomeAPN;
 
- console.log("Oferta: " + oferta);
+ console.log("origem: " + origem);
 
+  if (origem == "RD CONVERSAS") {
+    sourceId = '6557bdc659db5d001c3c4684';
+  } else if (origem == "EXACT SALES") {
+    sourceId = '6557bdb23770f2001bb8b82e';
+  } else if (origem == "TOTVS") {
+    sourceId = '63651c290de1b20019712080';
+  } else if (origem == "RD STATION") {
+    sourceId = '6556783ed1f311000f84c37c';
+  } else if (origem == "AGÊNCIAS") {
+    sourceId = '6557bdb93770f2001bb8b83f';
+  }
+
+ 
 
   if (fonteRD) {
-      campaingId = '6532c91f3ae6b1000de593a5';
-      sourceId = '6556783ed1f311000f84c37c';
+      
       if (emailRequisitante == 'jonathan.lopes@rdstation.com') {
         nomeAPN = 'Jonathan Lopes (RD)';
       } else if (emailRequisitante == 'gabriela.cidade@rdstation.com') {
         nomeAPN = 'Gabriela Cidade (RD)';
       }
-  } else {
-    nomeAPN
-  }
+  } 
+    
+
 
   let url = 'https://crm.rdstation.com/api/v1/organizations?token=6303f05b46f5b6001b61b603';
   let options = {
@@ -193,11 +205,20 @@ app.post('/webhook/', encodeUrl, (requisicao, resposta) => {
         }
       ]
     });
+
+    if (origem != "TOTVS") {
+      options.body.deal.deal_custom_fields.push({custom_field_id: '64cd438ff3fc640014b2f5a5', value: "N/A"});
+      options.body.deal.deal_custom_fields.push({custom_field_id: '6474edfabb0aba000da1378f', value: "NÃO"});
+    }
+    
+
+    
+
     url = 'https://crm.rdstation.com/api/v1/deals?token=6303f05b46f5b6001b61b603';
     fetch(url, options)
     .then(res => res.json())
     .then(oportunidade => { 
-          //webhookbody = oportunidade;
+          webhookbody = oportunidade;
           options.body = JSON.stringify({
                             activity: {
                               deal_id: oportunidade._id,
