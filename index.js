@@ -109,13 +109,16 @@ const parsePage = (body, url) => {
   return pagina
 }
 
+app.post('/webhook/', encodeUrl, (requisicao, resposta) => {
+  console.log("webhoook------------------------------------------")
+  console.log(requisicao.body)
+})
 
-let bag;
 
 app.post('/login/', encodeUrl, (requisicao, resposta) => {
-console.log("Loginn------------------------------------------")
+  console.log("Loginn------------------------------------------")
   console.log(requisicao.body)
-  bag = requisicao.body;
+ 
     
   let respostas = requisicao.body.payload.questions_and_answers;
 
