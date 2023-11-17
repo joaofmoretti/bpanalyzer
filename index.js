@@ -112,13 +112,13 @@ const parsePage = (body, url) => {
 app.post('/webhook/', encodeUrl, (requisicao, resposta) => {
   console.log("webhoook------------------------------------------")
   console.log(requisicao.body)
-  let nomeEmpresa = data?.JSON?.payload.questions_and_answers.find((q) => q.question == 'Empresa').answer;
-  let escopo = data?.JSON?.payload.questions_and_answers.find((q) => q.position == 4).answer;
+  let nomeEmpresa = requisicao.body.payload.questions_and_answers.find((q) => q.question == 'Empresa').answer;
+  let escopo = requisicao.body.payload.questions_and_answers.find((q) => q.position == 4).answer;
   let apresentador = retornaApresentador(data?.JSON);
-  let telefoneCliente = data?.JSON?.payload.questions_and_answers.find((q) => q.question == 'Celular do Cliente').answer;
-  let nomeCliente = data?.JSON?.payload.questions_and_answers.find((q) => q.position == 1).answer;
-  let nomeUnidade = data?.JSON?.payload.questions_and_answers.find((q) => q.position == 5).answer;
-  let oferta = data?.JSON?.payload.scheduled_event.name.toUpperCase().replace('E-COMMERCE B2B', '');
+  let telefoneCliente = requisicao.body.payload.questions_and_answers.find((q) => q.question == 'Celular do Cliente').answer;
+  let nomeCliente = requisicao.body.payload.questions_and_answers.find((q) => q.position == 1).answer;
+  let nomeUnidade = requisicao.body.payload.questions_and_answers.find((q) => q.position == 5).answer;
+  let oferta = requisicao.body.payload.scheduled_event.name.toUpperCase().replace('E-COMMERCE B2B', '');
 
 
 
