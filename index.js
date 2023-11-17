@@ -129,13 +129,16 @@ app.post('/webhook/', encodeUrl, (requisicao, resposta) => {
   let telefoneCliente = requisicao.body.payload.questions_and_answers.find((q) => q.question == 'Celular do Cliente').answer;
   let nomeCliente = requisicao.body.payload.questions_and_answers.find((q) => q.position == 1).answer;
   let nomeUnidade = requisicao.body.payload.questions_and_answers.find((q) => q.position == 5).answer;
-  let oferta = requisicao.body.payload.scheduled_event.name.toUpperCase().replace('E-COMMERCE B2B', '');
+  let oferta = requisicao.body.payload.scheduled_event.name.toUpperCase().trim().replace('E-COMMERCE B2B', '');
   let cargoCliente = requisicao.body.payload.questions_and_answers.find((q) => q.position == 3).answer;
   let campaingId = '64ff5da9a20f3100018f6d9e';
   let sourceId = '63651c290de1b20019712080';
   let emailRequisitante = requisicao.body.payload.email.toString().toLowerCase();
   let fonteRD = (emailRequisitante.indexOf("rdstation.com") > -1)
   let nomeAPN;
+
+ console.log("Oferta: " + Oferta);
+
 
   if (fonteRD) {
       campaingId = '6532c91f3ae6b1000de593a5';
@@ -145,6 +148,8 @@ app.post('/webhook/', encodeUrl, (requisicao, resposta) => {
       } else if (emailRequisitante == 'gabriela.cidade@rdstation.com') {
         nomeAPN = 'Gabriela Cidade (RD)';
       }
+  } else {
+    nomeAPN
   }
 
   let url = 'https://crm.rdstation.com/api/v1/organizations?token=6303f05b46f5b6001b61b603';
