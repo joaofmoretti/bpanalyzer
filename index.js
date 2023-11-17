@@ -121,7 +121,7 @@ app.post('/webhook/', encodeUrl, (requisicao, resposta) => {
 
   fetch(url, options)
   .then(res => res.json())
-  .then(json => resposta.status(201).send(requisicao.body))
+  .then(json => resposta.status(201).send(json))
   .catch(err => resposta.status(401).send(err));
   
 
