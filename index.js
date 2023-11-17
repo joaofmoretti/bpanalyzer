@@ -187,6 +187,7 @@ app.post('/webhook/', encodeUrl, (requisicao, resposta) => {
     fetch(url, options)
     .then(res => res.json())
     .then(oportunidade => { 
+          webhookbody = oportunidade;
           options.body = JSON.stringify({
                             activity: {
                               deal_id: oportunidade._id,
@@ -198,11 +199,11 @@ app.post('/webhook/', encodeUrl, (requisicao, resposta) => {
           
           fetch(url, options)
           .then(res => res.json())
-          .then(comentario => { resposta.status(201).send()})})
-          .catch(err => resposta.status(401).send(err));
+          .then(comentario => { console.log(comentario); resposta.status(201).send()})})
+          .catch(err => console.log(err));
 
     })
-    .catch(err => resposta.status(401).send(err));
+    .catch(err => console.log(err));
   })
   
 
