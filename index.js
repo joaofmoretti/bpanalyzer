@@ -174,7 +174,9 @@ app.post('/webhook/', encodeUrl, (requisicao, resposta) => {
           {custom_field_id: '63763ae8c62c24000cbc1032', value: oferta},
           {custom_field_id: '63505233968a250014767d55', value: nomeUnidade},
           {custom_field_id: '63ced2631bc670000ca81466', value: nomeAPN},
-          {custom_field_id: '6544fe33f62610000d22077d', value: requisicao.body.payload.name}
+          {custom_field_id: '6544fe33f62610000d22077d', value: requisicao.body.payload.name},
+          {custom_field_id: '641b4c5dba8773002266f528', value: new Date(data?.JSON?.payload.scheduled_event.start_time).toLocaleDateString('pt-BR')}
+    
         ]
       },
       deal_source: {_id: sourceId},
