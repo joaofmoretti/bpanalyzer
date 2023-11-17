@@ -175,7 +175,8 @@ app.post('/webhook/', encodeUrl, (requisicao, resposta) => {
           {custom_field_id: '63505233968a250014767d55', value: nomeUnidade},
           {custom_field_id: '63ced2631bc670000ca81466', value: nomeAPN},
           {custom_field_id: '6544fe33f62610000d22077d', value: requisicao.body.payload.name},
-          {custom_field_id: '641b4c5dba8773002266f528', value: new Date(requisicao.body.payload.scheduled_event.start_time).toLocaleDateString('pt-BR')}
+          {custom_field_id: '641b4c5dba8773002266f528', value: new Date(requisicao.body.payload.scheduled_event.start_time).toLocaleDateString('pt-BR')},
+          {custom_field_id: '63f8ced05edf4300218e297f', value: apresentador.name}
     
         ]
       },
