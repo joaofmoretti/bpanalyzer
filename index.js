@@ -112,11 +112,22 @@ const parsePage = (body, url) => {
 app.post('/webhook/', encodeUrl, (requisicao, resposta) => {
   console.log("webhoook------------------------------------------")
   console.log(requisicao.body)
+  let nomeEmpresa = data?.JSON?.payload.questions_and_answers.find((q) => q.question == 'Empresa').answer;
+  let escopo = data?.JSON?.payload.questions_and_answers.find((q) => q.position == 4).answer;
+  let apresentador = retornaApresentador(data?.JSON);
+  let telefoneCliente = data?.JSON?.payload.questions_and_answers.find((q) => q.question == 'Celular do Cliente').answer;
+  let nomeCliente = data?.JSON?.payload.questions_and_answers.find((q) => q.position == 1).answer;
+  let nomeUnidade = data?.JSON?.payload.questions_and_answers.find((q) => q.position == 5).answer;
+  let oferta = data?.JSON?.payload.scheduled_event.name.toUpperCase().replace('E-COMMERCE B2B', '');
+
+
+
+
   let url = 'https://crm.rdstation.com/api/v1/organizations?token=6303f05b46f5b6001b61b603';
   let options = {
     method: 'POST',
     headers: {accept: 'application/json', 'content-type': 'application/json'},
-    body: JSON.stringify({organization: {name: 'Empresa moretti SA 2'}})
+    body: JSON.stringify({organization: {name: nomeEmpresa}})
   };
 
   fetch(url, options)
