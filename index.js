@@ -894,3 +894,37 @@ function geraEcommerce(obj) {
   return ecoms;
 }
 
+function retornaApresentador(json) {
+
+  let mail = json.payload.scheduled_event.event_memberships[0].user_email
+  
+  let usersRD = [
+    {
+      "id": "6361707267edf7001b72b4c7",
+      "name": "Fernando Gordilho",
+      "email": "fernando.gordilho@totvs.com.br"
+
+    },
+
+    {
+      "id": "63514b20a7e955000c0ece48",
+      "name": "Ruan Fagundes",
+      "email": "ruan.fagundes@totvs.com.br"
+
+    },
+    {
+      "id": "637671145c04e200168f1de9",
+      "name": "João Moretti",
+      "email": "joao.moretti@fluig.com"
+    },
+    {
+      "id": "62db0782987f1a000c1c86c3",
+      "name": "Jhon",
+      "email": "jhonatans.aguiar@totvs.com.br"
+    }
+  ];
+
+
+  return usersRD.find((u) => u.email == mail);
+
+}
