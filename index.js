@@ -123,6 +123,7 @@ app.post('/webhook/', encodeUrl, (requisicao, resposta) => {
   console.log("webhoook------------------------------------------")
   console.log(requisicao.body);
   webhookbody = requisicao.body;
+  return;
   let nomeEmpresa = requisicao.body.payload.questions_and_answers.find((q) => q.question == 'Empresa').answer;
   let escopo = requisicao.body.payload.questions_and_answers.find((q) => q.position == 4).answer;
   let apresentador = retornaApresentador(requisicao.body);
