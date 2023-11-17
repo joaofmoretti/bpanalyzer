@@ -112,8 +112,20 @@ const parsePage = (body, url) => {
 app.post('/webhook/', encodeUrl, (requisicao, resposta) => {
   console.log("webhoook------------------------------------------")
   console.log(requisicao.body)
+  let url = 'https://crm.rdstation.com/api/v1/organizations?token=6303f05b46f5b6001b61b603';
+  let options = {
+    method: 'POST',
+    headers: {accept: 'application/json', 'content-type': 'application/json'},
+    body: JSON.stringify({organization: {name: 'Empresa moretti SA 2'}})
+  };
 
-  resposta.status(201).send(requisicao.body);
+  fetch(url, options)
+  .then(res => res.json())
+  .then(json => resposta.status(201).send(requisicao.body))
+  .catch(err => resposta.status(401).send(err));
+  
+
+  ;
 })
 
 
