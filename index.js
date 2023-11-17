@@ -112,6 +112,8 @@ const parsePage = (body, url) => {
 app.post('/webhook/', encodeUrl, (requisicao, resposta) => {
   console.log("webhoook------------------------------------------")
   console.log(requisicao.body)
+
+  resposta.status(201).send(requisicao.body);
 })
 
 
