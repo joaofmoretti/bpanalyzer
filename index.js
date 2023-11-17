@@ -177,7 +177,8 @@ app.post('/webhook/', encodeUrl, (requisicao, resposta) => {
   .then(res => res.json())
   .then(empresa => {
 
-   options.body = JSON.stringify({
+
+    let conteudobody = {
       campaign: {_id: campaingId},
       deal: {
         deal_stage_id: '651f23bc471bcb000d59202c',
@@ -204,12 +205,18 @@ app.post('/webhook/', encodeUrl, (requisicao, resposta) => {
           phones: [{type: 'cellphone', phone: telefoneCliente}]
         }
       ]
-    });
+    };
 
     if (origem != "TOTVS") {
-      options.body.deal.deal_custom_fields.push({custom_field_id: '64cd438ff3fc640014b2f5a5', value: "N/A"});
-      options.body.deal.deal_custom_fields.push({custom_field_id: '6474edfabb0aba000da1378f', value: "NÃO"});
+      conteudobody.deal.deal_custom_fields.push({custom_field_id: '64cd438ff3fc640014b2f5a5', value: "N/A"});
+      conteudobody.deal.deal_custom_fields.push({custom_field_id: '6474edfabb0aba000da1378f', value: "NÃO"});
     }
+
+    
+
+   options.body = JSON.stringify(conteudobody);
+
+    
     
 
     
