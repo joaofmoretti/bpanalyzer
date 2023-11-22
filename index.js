@@ -249,7 +249,7 @@ app.post('/webhook/', encodeUrl, (requisicao, resposta) => {
           .catch(err => console.log(err));
 
     })
-    .catch(err => console.log(err));
+    .catch(err => { console.log(err); webhookresponse = err });
   })
   
 
