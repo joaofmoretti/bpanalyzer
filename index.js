@@ -185,7 +185,8 @@ app.post('/webhook/', encodeUrl, (requisicao, resposta) => {
   .then(res => res.json())
   .then(empresa => {
 
-
+    console.log("criou empresa ");
+    console.log(empresa);
     let conteudobody = {
       campaign: {_id: campaingId},
       deal: {
@@ -225,14 +226,17 @@ app.post('/webhook/', encodeUrl, (requisicao, resposta) => {
    options.body = JSON.stringify(conteudobody);
 
     
-    
-
+  console.log("O que ele vai enviar para o RD =================");
+  console.log(options.body)
+  console.log("fim dO que ele vai enviar para o RD =================");
     
 
     url = 'https://crm.rdstation.com/api/v1/deals?token=6303f05b46f5b6001b61b603';
     fetch(url, options)
     .then(res => res.json())
     .then(oportunidade => { 
+          console.log("resposta ");
+          console.log(oportunidade);
           webhookresponse = oportunidade;
           options.body = JSON.stringify({
                             activity: {
@@ -246,7 +250,7 @@ app.post('/webhook/', encodeUrl, (requisicao, resposta) => {
           fetch(url, options)
           .then(res => res.json())
           .then(comentario => { console.log(comentario); resposta.status(201).send()})})
-          .catch(err => console.log(err));
+          .catch(err => {console.log(err);  webhookresponse = err});
 
     })
     .catch(err => { console.log(err); webhookresponse = err });
