@@ -21,7 +21,7 @@ app.use(express.static(__dirname + '/views/form.html'));
 app.use(express.static(__dirname + '/views/styleforms.css'));
 app.use(express.static(__dirname + '/views/form.js'));
 app.use(express.static(__dirname + '/views/totvs-logob.png'));
-//console.log(__dirname);
+//console.debug(__dirname);
 app.use(express.static(__dirname + '/views/login.html'));
 app.use(express.static(__dirname + '/views/stylelogin.css'));
 app.use(express.static(__dirname + '/views/totvs-logob.png'));
@@ -85,21 +85,21 @@ const parsePage = (body, url) => {
 
 
   if (!match || typeof match[1] !== 'string') {
-    console.log('Unable to parse the title tag');
+    console.debug('Unable to parse the title tag');
     throw new Error('Unable to parse the title tag')
   }
   tituloPagina = match[1];
-  console.log('match[1] ' + match[1])
+  console.debug('match[1] ' + match[1])
 
   let cnpj = ''
   try {
     cnpj = body.match(/\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}/)[0];
   } catch (err) {}
   if (cnpj != '') {
-    console.log('cnpjX ' + cnpj);
+    console.debug('cnpjX ' + cnpj);
     
   } else {
-    console.log('cnpjX nao achou');
+    console.debug('cnpjX nao achou');
   }
 
   pagina.url = url
@@ -110,6 +110,14 @@ const parsePage = (body, url) => {
 }
 
 let webhookbody;
+let webhookresponse;
+
+app.get('/webhook/response/', (req, res) => {
+
+  res.writeHead(200, {"Content-Type": "application/json"});
+    res.end(JSON.stringify(webhookresponse));
+  //res.sendFile(__dirname + '/views/login.html');
+}); 
 
 app.get('/webhook/', (req, res) => {
 
@@ -139,7 +147,7 @@ app.post('/webhook/', encodeUrl, (requisicao, resposta) => {
   let fonteRD = (origem == "RD STATION");
   let nomeAPN;
 
- console.log("origem: " + origem);
+ console.debug("origem: " + origem);
 
   if (origem == "RD CONVERSAS") {
     sourceId = '6557bdc659db5d001c3c4684';
@@ -276,8 +284,8 @@ app.get('/', (req, res) => {
 });
 
 app.get('/site/:site', (req, res) => {
-  console.log("NOvo construtor!!!");
-  console.log(req.params);
+  console.debug("NOvo construtor!!!");
+  console.debug(req.params);
 
   let sitedoPlugin = decodeURIComponent(req.params);
 
@@ -323,14 +331,14 @@ app.get('/RDStation.png', (req, res) => {
 });
 
 app.listen(process.env.PORT || 3000, () => {
-    console.log("Aplicação de subiu na porta 3000");
+    console.debug("Aplicação de subiu na porta 3000");
 });
 
 //const server = https.createServer({ key, cert }, app);
 
 //const port = 3000;
 //server.listen(port, () => {
-  //console.log('Servidor está rodando com https na porta 3000');
+  //console.debug('Servidor está rodando com https na porta 3000');
 //});
 
 
@@ -341,7 +349,7 @@ app.get('/form/', (req, res) => {
     //es.send("<script>alert('teste');</script>");
     
 
-    console.log('get do form');
+    console.debug('get do form');
    
     
 
@@ -373,24 +381,24 @@ app.post('/dadosEmpodera/', encodeUrl, (req, res) => {
   
   
   clienteCNPJRegistroBR.then(result => { 
-                console.log("Resultado empodera!!!")
-                //console.log(result)
+               // console.debug("Resultado empodera!!!")
+                //console.debug(result)
                 let clientesLocalizados = result;
                
                 if (clientesLocalizados == null || clienteCNPJRegistroBR.length == 0  ) {
                   
                   //throw new Error('Customer not Found with search ' + nome);
-                  console.log("Vai tentar com outro cnpj: " + nome) 
+                  console.debug("Vai tentar com outro cnpj: " + nome) 
                   let clienteCNPJSite = BuscaClienteEmpodera(nome);
                   clienteCNPJSite.then(resultado => {
-                    console.log("!!!!!Rodando esta localizacao");
+                    console.debug("!!!!!Rodando esta localizacao");
                     clientesLocalizados = resultado;
                   })
 
                 }
                  
-                console.log("Cliente que vai retornar");
-                //console.log(clientesLocalizados);
+                console.debug("Cliente que vai retornar");
+                //console.debug(clientesLocalizados);
 
                 if (clientesLocalizados != null && clientesLocalizados.length != 0) {
 
@@ -421,8 +429,8 @@ app.post('/dadosEmpodera/', encodeUrl, (req, res) => {
 
                               res.status(201). send(clientesLocalizados);
                               
-                            }).catch(error => {console.log('error', error)} );
-                      }).catch(error => {console.log('error', error)} );
+                            }).catch(error => {console.debug('error', error)} );
+                      }).catch(error => {console.debug('error', error)} );
                 } else {
                    throw new Error("Cliente nao localizado no empodera");             
                 }
@@ -431,14 +439,14 @@ app.post('/dadosEmpodera/', encodeUrl, (req, res) => {
                 
 
   
-}).catch(error => {console.log('error', error); res.status(404). send();} );
+}).catch(error => {console.debug('error', error); res.status(404). send();} );
 })
 
 app.post('/wservice/', encodeUrl, (req, res) => {
   
   
   url = req.body.busca;
-  console.log(req.body);
+  console.debug(req.body);
 
   url = url.toLowerCase();
 
@@ -446,7 +454,7 @@ app.post('/wservice/', encodeUrl, (req, res) => {
     url = 'https://' + url;
   }
 
-  console.log("Wservice URL " + url + ' ' + Date());
+  console.debug("Wservice URL " + url + ' ' + Date());
 
  
   
@@ -484,21 +492,21 @@ app.post('/wservice/', encodeUrl, (req, res) => {
           .catch(e => { 
             //obj.totvsOffers = geraOfertasTOTVS(obj);
             //obj.ecommerce = geraEcommerce(obj).toString() ;
-            console.log('erro da busca de pagina');
-            console.log(e);
+            console.debug('erro da busca de pagina');
+            console.debug(e);
             res.status(404). send("Erro de busca da pagina");
            }) // catch possible errors
          
           })   
    }).catch(e => { 
-                    console.log("Erro de Analize Wappalyzer")
-                    console.log(e)
+                    console.debug("Erro de Analize Wappalyzer")
+                    console.debug(e)
   
                     })   
  
     
   } catch (error) {
-    console.log("Erro da prospecção inteira")
+    console.debug("Erro da prospecção inteira")
     console.error(error)
     res.status(404).send("erro de prospecção");
   }
@@ -514,7 +522,7 @@ app.post('/prospectaSite/', encodeUrl, (req, res) => {
   
   
   url = req.body.busca;
-  console.log(req.body);
+  console.debug(req.body);
 
   url = url.toLowerCase();
 
@@ -522,7 +530,7 @@ app.post('/prospectaSite/', encodeUrl, (req, res) => {
     url = 'https://' + url;
   }
 
-  console.log("propsectaSite URL " + url + ' ' + Date());
+  console.debug("propsectaSite URL " + url + ' ' + Date());
 
 
  
@@ -548,12 +556,12 @@ app.post('/prospectaSite/', encodeUrl, (req, res) => {
         fetch("http://179.223.166.224:3000/wservice", opcoesDeRequisicao)
         .then(response => response.json())  // converter para json
         .then(json => {res.send(json);})    //imprimir dados no console
-        .catch(err => console.log('Erro de solicitação', err));
+        .catch(err => console.debug('Erro de solicitação', err));
          
              
     
   } catch (error) {
-    console.log("Erro da prospecção inteira")
+    console.debug("Erro da prospecção inteira")
     console.error(error)
     res.status(404).send("erro de prospecção");
   }
@@ -567,15 +575,15 @@ app.post('/prospectaSite/', encodeUrl, (req, res) => {
 app.post('/apenasdadosGoverno/', encodeUrl,   (req, res) => {
   var busca = req.body.busca;;
   let num = busca;
-console.log('apenasdadosGoverno ' + num);
+console.debug('apenasdadosGoverno ' + num);
 let dados = null;
           let urlGover = 'https://publica.cnpj.ws/cnpj/' + num.toString();
-          console.log("urlGover " + urlGover);
+          console.debug("urlGover " + urlGover);
           fetch(urlGover)
           // Tratamento do sucesso
           .then(response => response.json())  // converter para json
           .then(json => {res.send(json);})    //imprimir dados no console
-          .catch(err => console.log('Erro de solicitação', err));
+          .catch(err => console.debug('Erro de solicitação', err));
 })          
 
 app.post('/dadosGoverno/', encodeUrl,   (req, res) => {
@@ -585,7 +593,7 @@ app.post('/dadosGoverno/', encodeUrl,   (req, res) => {
   let cnpjEncontrado = ''
   let num = '';
   let result = {}
-  console.log("Pagina !!!!!!!!!!!!!!!!!!!!!!!222222 " + url);
+  console.debug("Pagina !!!!!!!!!!!!!!!!!!!!!!!222222 " + url);
   let pageCNPJ = fetch(url)
           .then(resp => resp.text()) // parse response's body as text
           .then(body => parsePage(body, url)) // extract <title> from body
@@ -596,12 +604,12 @@ app.post('/dadosGoverno/', encodeUrl,   (req, res) => {
               if (num.length >= 14)  {
                   let urlGover = 'https://publica.cnpj.ws/cnpj/' + num.toString();
                   //let urlGover = 'https://publica.cnpj.ws/cnpj/' + num.toString();
-                console.log("urlGover sem passar pelo RegistroBR" + urlGover);
+                console.debug("urlGover sem passar pelo RegistroBR" + urlGover);
                 fetch(urlGover)
                 // Tratamento do sucesso
                 .then(response => response.json())  // converter para json
                 .then(json => {res.send(json); })    //imprimir dados no console
-                .catch(err => console.log('Erro de solicitação', err));
+                .catch(err => console.debug('Erro de solicitação', err));
                 
               }
           
@@ -610,12 +618,12 @@ app.post('/dadosGoverno/', encodeUrl,   (req, res) => {
             
 
           }) // send the result back
-          .catch(e => { console.log(e)})
+          .catch(e => { console.debug(e)})
 
 
   pageCNPJ.then((result) => {
 
-      console.log('cnpjEncontrado ' + cnpjEncontrado)
+      console.debug('cnpjEncontrado ' + cnpjEncontrado)
       if (cnpjEncontrado != '') return;
       let registro = fetchRegistroBr(busca);
       registro.then((result) => {
@@ -624,23 +632,23 @@ app.post('/dadosGoverno/', encodeUrl,   (req, res) => {
           cnpjEncontrado = [result.entities[0].publicIds[0].identifier];
           num = cnpjEncontrado[0].replace(/\D/g,'').substring(0,14);
         } catch (erro) {
-          console.log("Não foi possível pegar o CNPJ do domímio");
-          console.log(result)
+          console.debug("Não foi possível pegar o CNPJ do domímio");
+          console.debug(result)
         }  
         if (num.length >= 14)  {
       
           let dados = null;
           let urlGover = 'https://publica.cnpj.ws/cnpj/' + num.toString();
-          console.log("urlGover " + urlGover);
+          console.debug("urlGover " + urlGover);
           fetch(urlGover)
           // Tratamento do sucesso
           .then(response => response.json())  // converter para json
           .then(json => {res.send(json);})    //imprimir dados no console
-          .catch(err => console.log('Erro de solicitação', err));
+          .catch(err => console.debug('Erro de solicitação', err));
           
         }
-      }).catch(erroRegistro => {console.log("erro na requisicao que recupera o Registro"); console.log(erroRegistro)});
-    }).catch(erroCNPJ => {console.log("erro na requisicao que recupera o cnpj"); console.log(erroCNPJ)})    
+      }).catch(erroRegistro => {console.debug("erro na requisicao que recupera o Registro"); console.debug(erroRegistro)});
+    }).catch(erroCNPJ => {console.debug("erro na requisicao que recupera o cnpj"); console.debug(erroCNPJ)})    
 })
   
 
@@ -666,7 +674,7 @@ async function BuscaClienteEmpodera(nome) {
     //throw new Error('Cnpj nao encontrado para o empodera');
   }
 
-  console.log("BuscaClienteEmpodera " + nome)
+  //console.debug("BuscaClienteEmpodera " + nome)
 
   let urlEmpodera = [];
   urlEmpodera.push("https://empodera.totvs.com/api/area/totvs/customers-data/search?customer=");
@@ -674,20 +682,20 @@ async function BuscaClienteEmpodera(nome) {
   urlEmpodera.push("&status=Ativo&healthscoreType=totvs&mrr=&tickets=&report=false&take=15&skip=0&currentPage=1&perPage=10&sortAc=true&oportunity=all");
   
   let requestOptions = getEmpoderaResquetHeader();
-  console.log(urlEmpodera.join(""));
+  //console.debug(urlEmpodera.join(""));
   return new Promise((resolve, reject) => {
     fetch(urlEmpodera.join(""), requestOptions).then((response) => {
      
       if (!response.ok) return resolve(response)
       return response.json();
     }).then((jsonData) => {
-      console.log("BuscaClienteEmpodera deu bom!")
+      console.debug("BuscaClienteEmpodera deu bom!")
       let result = jsonData
      
       resolve(result)
     }).catch((err) => {
-      console.log("Erro ao tentar buscar dados do Empodera")  
-      console.log(err)
+      console.debug("Erro ao tentar buscar dados do Empodera")  
+      console.debug(err)
       reject(err)
       //throw err
   
@@ -706,22 +714,22 @@ async function fetchRegistroBr(inputAddress) {
   let result = {}
 
   return new Promise((resolve, reject) => {
-    console.log(registroBR_URL + '/' + urlHost.host);
+    console.debug(registroBR_URL + '/' + urlHost.host);
     fetch(registroBR_URL + '/' +  urlHost.host)
       .then((response) => {
-        console.log(response)
+        console.debug(response)
         if (!response.ok) return resolve(result)
         return response.json();
       }).then((jsonData) => {
-        console.log(jsonData)
+        console.debug(jsonData)
         result = jsonData
-        console.log(result);		
+        console.debug(result);		
         let cnpj = [result.entities[0].publicIds[0].identifier];
         let num = cnpj[0].replace(/\D/g,'').substring(0,14);
 		    resolve(result)
       }).catch((err) => {
-		    console.log("erro da parada")  
-        console.log(err)
+		    console.debug("erro da parada")  
+        console.debug(err)
         reject(err)
         //throw err
 		
@@ -746,7 +754,7 @@ var busca = req.body.busca;;
         res.send(jsonData);
         resolve(result)
       }).catch((err) => {
-        console.log(err);
+        console.debug(err);
       });  
 
 })
@@ -766,24 +774,24 @@ app.post('/trafego/', encodeUrl,   (req, res) => {
   return new Promise((resolve, reject) => {
     fetch(corsServer +'/?' + SIMILARWEB_BASE_URL + urlHost)
       .then((response) => {
-        console.log("resposta similar Web");
-        console.log(response);
-        console.log("response.ok");
-        console.log(response.ok)
+        console.debug("resposta similar Web");
+        console.debug(response);
+        console.debug("response.ok");
+        console.debug(response.ok)
 
 
         if (!response.ok) return resolve(result)
         return response.json();
       }).then((jsonData) => {
         result = jsonData
-        console.log("Moretti greatest hit ?")
-        console.log(result)
+        console.debug("Moretti greatest hit ?")
+        console.debug(result)
         res.status(200).send(jsonData);
         resolve(result)
       }).catch((err) => {
-        console.log("Erro ao buscar trafego");
+        console.debug("Erro ao buscar trafego");
         res.status(404).send(err);
-        console.log(err);
+        console.debug(err);
       });  
 
 })  
@@ -816,8 +824,8 @@ function fetchSimilarWeb(inputAddress) {
 		}		
 		
 		
-		console.log("vals valores");
-		console.log(vals);
+		console.debug("vals valores");
+		console.debug(vals);
 		
 		var options = {
           series: vals,
@@ -861,20 +869,20 @@ function fetchSimilarWeb(inputAddress) {
 
         resolve(result)
       }).catch((err) => {
-        console.log(err);
+        console.debug(err);
       });
   })
 }
 
 function extractsCNPJ(resultsArray){
-    console.log("Chegou aqui");
+    console.debug("Chegou aqui");
     //console.dir(resultsArray);
-    //console.log(resultsArray[0]);
+    //console.debug(resultsArray[0]);
     let cnpjValue = resultsArray[0].replace(/\D/g,'').substring(0,14);
     let numeroCNPJ = resultsArray[0].replace(/\D/g,'').substring(0,14);
     cnpjValue = cnpjValue.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
     
-    console.log("Numero cnpj " + numeroCNPJ);
+    console.debug("Numero cnpj " + numeroCNPJ);
     //document.getElementById("cnpj").value=cnpjValue;
     
     let dados = null;
@@ -883,14 +891,14 @@ function extractsCNPJ(resultsArray){
     // Tratamento do sucesso
     .then(response => response.json())  // converter para json
     .then(json => {populadadosGoverno(json);})    //imprimir dados no console
-    .catch(err => console.log('Erro de solicitação', err));
+    .catch(err => console.debug('Erro de solicitação', err));
     
     
 }
 
 function populadadosGoverno(json) {
-    console.log("Dados governo");
-    console.log(json);
+    console.debug("Dados governo");
+    console.debug(json);
     dadosGoverno = json;
     //respostaGlobal.redirect('/form/');
  
