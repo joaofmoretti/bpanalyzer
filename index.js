@@ -126,6 +126,55 @@ app.get('/webhook/', (req, res) => {
   //res.sendFile(__dirname + '/views/login.html');
 }); 
 
+async function obtemObjetoEmpresa(nome) {
+      let nomeEmpresa = nome;
+      console.log('nomeEmpresa ' + nomeEmpresa);
+      return new Promise((resolve, reject) => {
+      
+      let url = 'https://crm.rdstation.com/api/v1/organizations?token=6303f05b46f5b6001b61b603';
+      let opcoesEmpresa = {
+        method: 'POST',
+        headers: {accept: 'application/json', 'content-type': 'application/json'},
+        body: JSON.stringify({organization: {name: nomeEmpresa}})
+      };
+    
+      fetch(url, opcoesEmpresa)
+      .then(res => res.json())
+      .then(empresa => { if (empresa.errors != undefined && empresa.errors.name == 'Valor já existente.') {throw new Error()} 
+                             else {
+                             console.log("empresa nova criada");
+                             resolve(empresa)
+                             }})
+      .catch((error) => {
+        let opcoesBuscaEmpresa = {
+          method: 'GET',
+          headers: {accept: 'application/json', 'content-type': 'application/json'},
+          
+        };
+  
+        let urlBuscaEmpresa = 'https://crm.rdstation.com/api/v1/organizations?token=6303f05b46f5b6001b61b603&q='
+             + nomeEmpresa + '&limit=200';
+  
+        fetch(urlBuscaEmpresa, opcoesBuscaEmpresa)
+        .then(res => res.json())
+        .then(empresasLocalizadas => { console.log("Empresas: " + empresasLocalizadas.organizations.length);
+                                       let empresa = empresasLocalizadas.organizations.find((emp) => emp.name == nomeEmpresa); 
+                                       
+                                       //console.log("nova empresa"); console.log(empresa) 
+                                       if (empresa == null) {empresa = empresasLocalizadas.organizations.filter((emp) => emp.name.toLowerCase().indexOf(nomeEmpresa) > -1)[0]}
+                                      // if (empresa == null) {console.log("Deu coco")} else {console.log(empresa)}
+                                      resolve(empresa);
+                                       
+                                      })
+        .catch((Error) => {console.log("Nao criou nem achou"); reject(Error);})                               
+
+      }).catch(erroEmpresa => {console.log("Erro na parada"); 
+                             console.log(erroEmpresa)
+                             reject(erroEmpresa);
+                            
+                            })
+    })                        
+}
 
 app.post('/webhook/', encodeUrl, (requisicao, resposta) => {
   console.log("webhoook------------------------------------------")
@@ -173,19 +222,10 @@ app.post('/webhook/', encodeUrl, (requisicao, resposta) => {
   } 
     
 
+  let promessaEmpresa = obtemObjetoEmpresa(nomeEmpresa);
 
-  let url = 'https://crm.rdstation.com/api/v1/organizations?token=6303f05b46f5b6001b61b603';
-  let options = {
-    method: 'POST',
-    headers: {accept: 'application/json', 'content-type': 'application/json'},
-    body: JSON.stringify({organization: {name: nomeEmpresa}})
-  };
-
-  fetch(url, options)
-  .then(res => res.json())
-  .then(empresa => {
-
-    console.log("criou empresa ");
+  promessaEmpresa.then(empresa => {
+    
     console.log(empresa);
     let conteudobody = {
       campaign: {_id: campaingId},
@@ -221,24 +261,27 @@ app.post('/webhook/', encodeUrl, (requisicao, resposta) => {
       conteudobody.deal.deal_custom_fields.push({custom_field_id: '6474edfabb0aba000da1378f', value: "NÃO"});
     }
 
-    
+    let opcoesOPeCom = {
+      method: 'POST',
+      headers: {accept: 'application/json', 'content-type': 'application/json'}
+    };
 
-   options.body = JSON.stringify(conteudobody);
+    opcoesOPeCom.body = JSON.stringify(conteudobody);
 
     
   console.log("O que ele vai enviar para o RD =================");
-  console.log(options.body)
+  console.log(opcoesOPeCom.body)
   console.log("fim dO que ele vai enviar para o RD =================");
     
 
     url = 'https://crm.rdstation.com/api/v1/deals?token=6303f05b46f5b6001b61b603';
-    fetch(url, options)
+    fetch(url, opcoesOPeCom)
     .then(res => res.json())
     .then(oportunidade => { 
           console.log("resposta ");
           console.log(oportunidade);
           webhookresponse = oportunidade;
-          options.body = JSON.stringify({
+          opcoesOPeCom.body = JSON.stringify({
                             activity: {
                               deal_id: oportunidade._id,
                               text: escopo,
@@ -247,7 +290,7 @@ app.post('/webhook/', encodeUrl, (requisicao, resposta) => {
 
           url = 'https://crm.rdstation.com/api/v1/activities?token=6303f05b46f5b6001b61b603';                 
           
-          fetch(url, options)
+          fetch(url, opcoesOPeCom)
           .then(res => res.json())
           .then(comentario => { console.log(comentario); resposta.status(201).send()})})
           .catch(err => {console.log(err);  webhookresponse = err});
