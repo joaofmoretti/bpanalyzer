@@ -297,8 +297,44 @@ app.post('/webhook/', encodeUrl, (requisicao, resposta) => {
 
     })
     .catch(err => { console.log(err); webhookresponse = err });
-  })
+})
   
+app.post('/mentorwebhook/', encodeUrl, (requisicao, resposta) => {
+  var myHeaders = new Headers();
+  myHeaders.append("Content-Type", "application/json");
+  myHeaders.append("Authorization", "Bearer eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiYXBpIiwicHJvcGVydGllcyI6eyJrZXlJZCI6ImtleV8wMUhLV0RBNFpOWjJZMktaQTM5OVJWWk1LMSIsIndvcmtzcGFjZUlkIjoid3BjXzAxSEtTWVBOSEtIMDIzNzYwVkJXV1dOUlA3IiwidXNlcklkIjoidXNlcl9hcGkifSwiaWF0IjoxNzA0OTgxNzYzfQ.RYKjA9vaOUWg4RW4qX99wVs0brKs1dVpr0xA-6xJt_YpEC_0ohwWJ-stT0gNT2ahTMkjAl9qkBXF2Nk1c4Jy5wZ9otlcMAnkMlnJvmBw_eksrmKSUjKHpLVGQCMhQd8gT9QG0S0hPXwHzu7iNUWa7Fc0Ziwlkd43yCunScNkYVDBw0LeHsiSaiCmNyhKtutqzoQ_I09lXCaj7cjbLvPTFZUsdZoZcxmqf4ofVBAENo_0uBf3JWdNV27EDzdLsM6pWTRGR_Z5gWdINWhMyF56jq-b3WQz6UNbWJqnU3WAlxHMsRHGW3r8CDdp5OcU3m45InyY29HAWlxpZjOLmZa6oQ");
+  
+  var raw = JSON.stringify({
+    "0": {
+      "json": {
+        "promptId": "question_answer",
+        "data": {
+          "question": "Quantos clients a shopify tem no brasil"
+        },
+        "kbs": []
+      }
+    }
+  });
+  
+  var requestOptions = {
+    method: 'POST',
+    headers: myHeaders,
+    body: raw,
+    redirect: 'follow'
+  };
+  
+  fetch("https://api.conteudo.rdstationmentoria.com.br/trpc/copywriting.create?batch=1", requestOptions)
+    .then(response => response.text())
+    .then(result => console.log(result))
+    .catch(error => console.log('error', error));
+
+
+
+
+  
+})
+
+    
 
 
 
@@ -1044,3 +1080,71 @@ function retornaApresentador(json) {
   return usersRD.find((u) => u.email == mail);
 
 }
+
+app.get('/colaboradores/:nomeEmpresa', (req, res) => {
+  var BING_SEARCH_URL = "https://www.bing.com/search?q=";
+    //res.writeHead(200, {"Content-Type": "application/html"});
+    console.log("req.params.nomeEmpresa " + req.params.nomeEmpresa)
+
+    var empresaString = req.params.nomeEmpresa.replaceAll(" ", "+");
+
+
+    console.log("empresaString " + empresaString);
+
+    let urlColabs = [];
+    urlColabs.push(BING_SEARCH_URL);
+    urlColabs.push("quantos+funcionários+tem+")
+    urlColabs.push(empresaString);
+   urlColabs.push("&qs=n&form=QBRE&sp=-1&pq=&sc=0-0&sk=&cvid=FD7B4C6DAF0B48EFBE5AD381D983EE01&ghsh=0&ghacc=0&ghpl=");
+   
+    console.log(urlColabs.join(""));
+    fetch(urlColabs.join("")).then(resposta => { console.log(resposta); return resposta.text()})
+    .then(html => {
+      
+      var StringInicial = '<div class="b_focusTextMedium">'
+      var StringInicialLarge = '<div class="b_focusTextLarge">'
+      var StringFinal = '</div>'
+
+      var posicaoInicial = html.indexOf(StringInicial) + StringInicial.length;
+
+      var count = (html.match(/<div class="b_focusTextMedium">/g) || []).length;
+      var countlsrge = (html.match(/<div class="b_focusTextLarge">/g) || []).length;
+      console.log("countMedium " + count + " countlsrge " + countlsrge);
+      if (count == 0) {
+        var posicaoInicial = html.indexOf(StringInicialLarge) + StringInicialLarge.length;
+      }
+
+
+
+
+      var corte = html.substring(posicaoInicial, html.length);
+
+
+
+
+
+      var  posicaoFinal = posicaoInicial + corte.indexOf(StringFinal);
+
+      console.log("posicaoInicial " + posicaoInicial);
+      console.log("posicaoFinal " + posicaoFinal);
+
+      var colaboradores = html.substring(posicaoInicial, posicaoFinal);
+
+      if (colaboradores.indexOf("&#225;") > -1) {
+        colaboradores = colaboradores.replace("&#225;", "á")
+      }
+
+      //console.log(colaboradores)
+
+      
+      res.send(colaboradores);
+      //res.send(html);
+
+
+    }).catch(erro => {console.log(erro)})
+    
+  })   
+
+
+
+
