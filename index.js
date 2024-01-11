@@ -332,7 +332,7 @@ app.post('/mentorwebhook/', encodeUrl, (requisicao, resposta) => {
     } )
     .catch(error => {console.log('error', error) 
                     resposta.status(404).send(error); 
-                    );
+                     });
 
 
 
