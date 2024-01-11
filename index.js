@@ -327,7 +327,7 @@ app.post('/mentorwebhook/', encodeUrl, (requisicao, resposta) => {
     .then(response => response.text())
     .then(result => {console.log(result)
     
-      resposta.status(200). send(JSON.stringify(result));
+      resposta.status(200).send(result);
     
     } )
     .catch(error => {console.log('error', error) 
