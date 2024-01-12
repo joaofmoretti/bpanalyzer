@@ -313,7 +313,7 @@ app.post('/mentorwebhook/', encodeUrl, (requisicao, resposta) => {
       "json": {
         "promptId": "question_answer",
         "data": {
-          "question": "Quantos clients a shopify tem no brasil"
+          "question": requisicao.body.pergunta
         },
         "kbs": []
       }
