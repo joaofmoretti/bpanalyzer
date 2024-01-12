@@ -328,8 +328,16 @@ app.post('/mentorwebhook/', encodeUrl, (requisicao, resposta) => {
   fetch("https://api.conteudo.rdstationmentoria.com.br/trpc/copywriting.create?batch=1", requestOptions)
     .then(response => response.text())
     .then(result => {//console.log(result)
-    
-      resposta.status(200).send(result);
+		
+		let resultMentor = JSON.parse(result);
+		
+		let respostaMentor = {
+			"resposta": resultMentor[0].result.data.json.content
+		}
+		
+		
+		
+      resposta.status(200).send(respostaMentor);
     
     } )
     .catch(error => {console.log('error', error) 
