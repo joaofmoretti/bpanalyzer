@@ -643,8 +643,8 @@ app.post('/prospectaSite/', encodeUrl, (req, res) => {
           body: raw,
           redirect: 'follow'
         };
-
-        fetch("http://179.223.166.224:3000/wservice", opcoesDeRequisicao)
+        
+        fetch("http://179.223.163.23:3000/wservice", opcoesDeRequisicao)
         .then(response => response.json())  // converter para json
         .then(json => {res.send(json);})    //imprimir dados no console
         .catch(err => console.debug('Erro de solicitação', err));
