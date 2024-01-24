@@ -60,7 +60,7 @@ const options = {
   headers: {},
   maxDepth: 3,
   maxUrls: 1,
-  maxWait: 30000,
+  maxWait: 40000,
   recursive: true,
   probe: true,
   proxy: false,
