@@ -219,7 +219,7 @@ app.post('/webhook/', encodeUrl, (requisicao, resposta) => {
       } else if (emailRequisitante == 'gabriela.cidade@rdstation.com') {
         nomeAPN = 'Gabriela Cidade (RD)';
       } else if (emailRequisitante == 'gabriel.calixto@rdstation.com') {
-        nomeAPN = 'Gabriel Calixo (RD)';
+        nomeAPN = 'Gabriel Calixto (RD)';
       }
   } 
     
