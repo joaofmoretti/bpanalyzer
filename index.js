@@ -1000,7 +1000,7 @@ function extractsCNPJ(resultsArray){
 }
 
 function populadadosGoverno(json) {
-    console.debug("Dados governo");
+    console.debug("Dados governo");   
     console.debug(json);
     dadosGoverno = json;
     //respostaGlobal.redirect('/form/');
@@ -1100,6 +1100,10 @@ function retornaApresentador(json) {
   return usersRD.find((u) => u.email == mail);
 
 }
+
+app.get('/ping', (req, res) => {
+  res.status(201).send("pong")
+})
 
 app.get('/colaboradores/:nomeEmpresa', (req, res) => {
   var BING_SEARCH_URL = "https://www.bing.com/search?q=";
