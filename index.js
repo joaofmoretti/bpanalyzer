@@ -1102,6 +1102,7 @@ function retornaApresentador(json) {
 }
 
 app.get('/ping', (req, res) => {
+  console.log("ping " + req.ip);
   res.status(201).send("pong")
 })
 
