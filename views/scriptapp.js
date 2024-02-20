@@ -53,14 +53,14 @@ $(".search-bar input")
 	 if(e.which == 13) {
     $("#Inicial").hide();
     $("#Resultados").hide();
-		$("#Carregando").show();
+		//$("#Carregando").show();
     resetPaginas();
-		prospectar();
-    carregaCliente();
-      
-    
+    $("#Resultados").show();
+    $("#linkgov").click();
+    prospectar();
     carregaTrafego();
-		
+    carregaCliente();
+    
 		
 		
     }
@@ -139,9 +139,8 @@ let urlaBusca = document.getElementById('busca');
 
   fetch(endereco , requestOptions).then((res) => res.json())
           .then((data) => {
-            console.log("thilla!!!!!")
             console.log(data);
-            
+            $("#Ofertas")[0].innerHTML = JSON.parse(cloneOfertas);           
             let temShopify = false;
             $("#titulopagina")[0].innerText = data.title;
 
@@ -149,6 +148,7 @@ let urlaBusca = document.getElementById('busca');
             //$("#endereço")[0].innerText = 'Endereco: ' + document.getElementById('busca').value; 
             $("#NumeroTecnologias")[0].innerText = 'Tecnologias Detectadas: ' + data.technologies.length; 
             $("#contatech")[0].innerText = data.technologies.length;
+            $("#contaofer")[0].innerText = '3'; 
             $("#ecommerce")[0].innerText = 'Plataforma E-Commerce: ' + data.ecommerce; 
              montaPaginaTecnologias(data);
              montaPaginaTecnologiasEcommerce(data)
@@ -192,8 +192,6 @@ let urlaBusca = document.getElementById('busca');
 
 
             $("#Carregando").hide();
-
-
 		        $("#Resultados").show();
             
 
@@ -481,7 +479,8 @@ function carregaCliente() {
 
     let testeCliente = buscaCliente();
 
-    
+    testeCliente.then(cliente => {
+    alert('carregaCliente')})
 
    
 
@@ -1135,22 +1134,27 @@ function buscaClientePlugin(site) {
   $('#busca')[0].value = site;
 
   $("#Inicial").hide();
-  $("#Resultados").hide();
-  $("#Carregando").show();
+  $("#Resultados").show();
+  
+  //$("#Carregando").show();
   prospectar();
+  carregaTrafego();
   carregaCliente();
     
   
-  carregaTrafego();
+  
 }
 
 function resetPaginas() {
   $("#TOTVS")[0].innerHTML = JSON.parse(cloneTOTVS);
-  $("#Ofertas")[0].innerHTML = JSON.parse(cloneOfertas);
+  
+  //$("#Ofertas")[0].innerHTML = JSON.parse(cloneOfertas);
+  $("#Ofertas")[0].innerHTML = noInfoAvail("Calculando as ofertas mais indicadas para este prospect");
+  
   $("#Governamentais")[0].innerHTML = JSON.parse(cloneGovernamentais);
   $("#Tráfego")[0].innerHTML = JSON.parse(cloneTrafego);
-
-  
+  $("#contatech")[0].innerText = '?';
+  $("#contaofer")[0].innerText = '?';
 }
 
 function noInfoAvail(mensagem) {
