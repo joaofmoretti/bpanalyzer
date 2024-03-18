@@ -659,7 +659,9 @@ app.post('/prospectaSite/', encodeUrl, (req, res) => {
         fetch("http://189.27.190.227:3000/wservice", opcoesDeRequisicao)
         .then(response => response.json())  // converter para json
         .then(json => {res.send(json);})    //imprimir dados no console
-        .catch(err => console.debug('Erro de solicitação no serviço de prospecção', err));
+        .catch(err => {console.debug('Erro de solicitação no serviço de prospecção', err);
+				res.status(404).send(err);
+		 });
          
              
     
