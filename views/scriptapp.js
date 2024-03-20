@@ -118,7 +118,7 @@ $(function () {
  
    
    let method = "POST";
-   let endereco = 'http://189.27.190.227:3000/wservice';
+   let endereco = '/prospectaSite/';
    
  
    var myHeaders = new Headers();
