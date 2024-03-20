@@ -1,6 +1,14 @@
 const Wappalyzer = require('wappalyzer')
 const {execFile} = require('child_process');
 const cors = require('cors');
+const dns = require('node:dns');
+dns.setServers([
+    '8.8.8.8',
+    '[2001:4860:4860::8888]',
+    '8.8.8.8:1053',
+    '[2001:4860:4860::8888]:1053',
+  ]);
+
 
 //const fs = require('fs');
 //const key = fs.readFileSync('./ca/servidor.decrypted.key');
