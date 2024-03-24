@@ -1,14 +1,6 @@
 const Wappalyzer = require('wappalyzer')
 const {execFile} = require('child_process');
 const cors = require('cors');
-const dns = require('node:dns');
-dns.setServers([
-    '8.8.8.8',
-    '[2001:4860:4860::8888]',
-    '8.8.8.8:1053',
-    '[2001:4860:4860::8888]:1053',
-  ]);
-
 
 //const fs = require('fs');
 //const key = fs.readFileSync('./ca/servidor.decrypted.key');
@@ -664,7 +656,7 @@ app.post('/prospectaSite/', encodeUrl, (req, res) => {
           redirect: 'follow'
         };
         
-        fetch("http://[2804:7f5:9242:dec0:4042:1563:31bc:99e9]:3000/wservice", opcoesDeRequisicao)
+        fetch("http://161.69.63.205:3000/wservice", opcoesDeRequisicao)
         .then(response => response.json())  // converter para json
         .then(json => {res.send(json);})    //imprimir dados no console
         .catch(err => {console.debug('Erro de solicitação no serviço de prospecção', err);
