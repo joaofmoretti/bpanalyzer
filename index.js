@@ -1,7 +1,7 @@
 const Wappalyzer = require('wappalyzer')
 const {execFile} = require('child_process');
 const cors = require('cors');
-import pg from 'pg'
+
 
 
 //const fs = require('fs');
