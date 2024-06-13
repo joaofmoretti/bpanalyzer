@@ -1,6 +1,8 @@
 const Wappalyzer = require('wappalyzer')
 const {execFile} = require('child_process');
 const cors = require('cors');
+import pg from 'pg'
+
 
 //const fs = require('fs');
 //const key = fs.readFileSync('./ca/servidor.decrypted.key');
@@ -8,7 +10,7 @@ const cors = require('cors');
 
 //const https = require('https');
 
-let express = require('express');
+let express = require('express'); 
 let bodyParser = require('body-parser');
 let app = express();
 app.use(cors());
@@ -111,6 +113,20 @@ const parsePage = (body, url) => {
 
 let webhookbody;
 let webhookresponse;
+
+app.get('/loginURL/', (req, res) => {
+
+  res.writeHead(200, {"Content-Type": "application/json"});
+    res.end(JSON.stringify('https://fluig.totvs.com/portal/p/10097/ecmnavigation?app_ecm_navigation_doc=14459134'));
+  
+}); 
+
+app.get('/applicationURL/', (req, res) => {
+
+  res.writeHead(200, {"Content-Type": "application/json"});
+    res.end(JSON.stringify("https://business-commerce-system.onrender.com/business-commerce-plugin"));
+  
+}); 
 
 app.get('/webhook/response/', (req, res) => {
 
