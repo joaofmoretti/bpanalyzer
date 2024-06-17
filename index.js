@@ -1194,6 +1194,30 @@ app.get('/colaboradores/:nomeEmpresa', (req, res) => {
 
   function traduzCart(techs) {
 
+    let totvscat = {
+      "id": 200,
+      "slug": "totvs",
+      "name": "Produtos TOTVS"
+    };
+
+
+    let totvsSlurs = [ 'rd-station', 'tail' ,'shopify'];
+    
+
+
+    for (var icont=0; icont < techs.length; icont++) {
+
+      if (totvsSlurs.includes(techs[icont].slug)) {
+
+        let ofertaTotvs = techs[icont];
+        let pos = techs.indexOf(ofertaTotvs);
+        ofertaTotvs.categories.push(totvscat);
+
+        techs[pos] == ofertaTotvs;
+        
+      }
+
+    }
 
     console.debug(techs);
 
