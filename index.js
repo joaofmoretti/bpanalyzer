@@ -601,7 +601,8 @@ app.post('/wservice/', encodeUrl, (req, res) => {
         fetch(url)
           .then(resp => resp.text()) // parse response's body as text
           .then(body => parsePage(body, url)) // extract <title> from body
-          .then(page => { obj.title = page.title;
+          .then(page => { obj.technologies  = traduzCart(obj.technologies);
+                          obj.title = page.title;
                           obj.cnpjSite = page.cnpj;
                            obj.totvsOffers = geraOfertasTOTVS(obj);
                            obj.ecommerce = geraEcommerce(obj).toString() ;
@@ -671,8 +672,8 @@ app.post('/prospectaSite/', encodeUrl, (req, res) => {
           body: raw,
           redirect: 'follow'
         };
-        
         fetch("http://179.223.163.23:3000/wservice", opcoesDeRequisicao)
+        //fetch("http://localhost:3000/wservice", opcoesDeRequisicao)
         .then(response => response.json())  // converter para json
         .then(json => {res.send(json);})    //imprimir dados no console
         .catch(err => {console.debug('Erro de solicitação no serviço de prospecção', err);
@@ -1070,6 +1071,9 @@ function geraEcommerce(obj) {
   for (var icont=0; icont < obj.technologies.length; icont++) {
 
     if (obj.technologies[icont].categories[0].id == 6) {
+
+            console.log('obj.technologies[icont]');
+            console.log(obj.technologies[icont]);
       
             ecoms.push(obj.technologies[icont].name);
         
@@ -1188,6 +1192,26 @@ app.get('/colaboradores/:nomeEmpresa', (req, res) => {
     
   })   
 
+  function traduzCart(techs) {
 
+
+    console.debug(techs);
+
+    let cart = techs.find((tech) => tech.slug == 'cart-functionality');
+    console.debug(cart);
+    let posicao = techs.indexOf(cart);
+    console.debug('posicao ' + posicao);
+    
+    cart.name = 'Desenvolvimento interno';
+    cart.description = 'O cliente optou por um desenvolvimento próprio para criar um sistema de carrinho de compras';
+    cart.website = 'https://www.google.com/search?q=O+que+%C3%A9+desenvolvimento+customizado';
+  
+    techs[posicao] = cart;
+
+    console.debug(techs);
+
+
+    return techs;
+  }
 
 
