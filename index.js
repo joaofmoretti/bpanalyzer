@@ -116,15 +116,15 @@ let webhookresponse;
 
 app.get('/loginURL/', (req, res) => {
 
-  res.writeHead(200, {"Content-Type": "application/json"});
+  res.writeHead(200, {"Content-Type": "text/plain"});
     res.end(JSON.stringify('https://fluig.totvs.com/portal/p/10097/ecmnavigation?app_ecm_navigation_doc=14459134'));
   
 }); 
 
 app.get('/applicationURL/', (req, res) => {
 
-  res.writeHead(200, {"Content-Type": "application/json"});
-    res.end(JSON.stringify("https://business-commerce-system.onrender.com/business-commerce-plugin"));
+  
+    res.status(200).send("https://business-commerce-system.onrender.com/business-commerce-plugin");
   
 }); 
 
