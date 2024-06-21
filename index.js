@@ -1220,20 +1220,18 @@ app.get('/colaboradores/:nomeEmpresa', (req, res) => {
 
     }
 
-    console.debug(techs);
-
-    let cart = techs.find((tech) => tech.slug == 'cart-functionality');
-    console.debug(cart);
-    let posicao = techs.indexOf(cart);
-    console.debug('posicao ' + posicao);
     
-    cart.name = 'Desenvolvimento interno';
-    cart.description = 'O cliente optou por um desenvolvimento próprio para criar um sistema de carrinho de compras';
-    cart.website = 'https://www.google.com/search?q=O+que+%C3%A9+desenvolvimento+customizado';
-  
-    techs[posicao] = cart;
-
-    console.debug(techs);
+    let cart = techs.find((tech) => tech.slug == 'cart-functionality');
+     
+    if (cart != null) {
+      let posicao = techs.indexOf(cart);
+      cart.name = 'Desenvolvimento interno';
+      cart.description = 'O cliente optou por um desenvolvimento próprio para criar um sistema de carrinho de compras';
+      cart.website = 'https://www.google.com/search?q=O+que+%C3%A9+desenvolvimento+customizado';
+    
+      techs[posicao] = cart;
+    }  
+    
 
 
     return techs;
