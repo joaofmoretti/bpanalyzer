@@ -74,16 +74,7 @@ const options = {
 };
 
   
-const wappalyzer = new Wappalyzer(options)
-wappalyzer.init()
-// Optionally set additional request headers
-const headers = {}
 
-// Optionally set local and/or session storage
-const storage = {
-  local: {}
-  
-}
 
 const { exec } = require("child_process");
 const { throws } = require('assert');
@@ -578,6 +569,16 @@ app.post('/dadosEmpodera/', encodeUrl, (req, res) => {
 
 app.post('/wservice/', encodeUrl, (req, res) => {
   
+  const wappalyzer = new Wappalyzer(options)
+wappalyzer.init()
+// Optionally set additional request headers
+const headers = {}
+
+// Optionally set local and/or session storage
+const storage = {
+  local: {}
+  
+}
   
   url = req.body.busca;
   console.debug(req.body);
