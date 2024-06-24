@@ -73,6 +73,18 @@ const options = {
   noRedirect: false,
 };
 
+  
+const wappalyzer = new Wappalyzer(options)
+wappalyzer.init()
+// Optionally set additional request headers
+const headers = {}
+
+// Optionally set local and/or session storage
+const storage = {
+  local: {}
+  
+}
+
 const { exec } = require("child_process");
 const { throws } = require('assert');
 
@@ -345,6 +357,8 @@ app.post('/mentorwebhook/', encodeUrl, (requisicao, resposta) => {
     body: raw,
     redirect: 'follow'
   };
+
+
   
   fetch("https://api.conteudo.rdstationmentoria.com.br/trpc/copywriting.create?batch=1", requestOptions)
     .then(response => response.text())
@@ -580,16 +594,6 @@ app.post('/wservice/', encodeUrl, (req, res) => {
   
   try {
 
-    const wappalyzer = new Wappalyzer(options)
-    wappalyzer.init()
-    // Optionally set additional request headers
-    const headers = {}
-
-    // Optionally set local and/or session storage
-    const storage = {
-      local: {}
-      
-    }
 
     const site = wappalyzer.open(url, headers, storage)
     // Optionally capture and output errors
