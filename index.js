@@ -1,5 +1,4 @@
 const Wappalyzer = require('wappalyzer')
-const {execFile} = require('child_process');
 const cors = require('cors');
 
 
@@ -41,8 +40,7 @@ const isValidUrl = urlString=> {
 return !!urlPattern.test(urlString);
 }
 
-let respostaGlobal;
-let dadosGoverno;
+
 let pagina = {
                "url" : "url",
                "title": "title",
@@ -76,11 +74,29 @@ const options = {
   
 
 
-const { exec } = require("child_process");
-const { throws } = require('assert');
-
-
 const parsePage = (body, url) => {
+  
+ 
+  
+  
+  let cnpj = ''
+  try {
+    console.log("cnpjs o ponto magico again");
+   
+    let conjunto = body.match(/\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}/);
+
+
+    console.log(conjunto);
+
+    cnpj = body.match(/\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}/)[0];
+  } catch (err) {console.log(err)}
+  if (cnpj != '') {
+    console.debug('cnpjX ' + cnpj);
+    
+  } else {
+    console.debug('cnpjX nao achou');
+  }
+
   let match = body.match(/<title>([^<]*)<\/title>/)  // regular expression to parse contents of the <title> tag
 
   if (!match || typeof match[1] !== 'string') {
@@ -94,18 +110,9 @@ const parsePage = (body, url) => {
     throw new Error('Unable to parse the title tag')
   }
   tituloPagina = match[1];
-  console.debug('match[1] ' + match[1])
+  //console.debug('match[1] ' + match[1])
 
-  let cnpj = ''
-  try {
-    cnpj = body.match(/\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}/)[0];
-  } catch (err) {}
-  if (cnpj != '') {
-    console.debug('cnpjX ' + cnpj);
-    
-  } else {
-    console.debug('cnpjX nao achou');
-  }
+
 
   pagina.url = url
   pagina.title = tituloPagina
@@ -198,7 +205,6 @@ async function obtemObjetoEmpresa(nome) {
 
 app.post('/webhook/', encodeUrl, (requisicao, resposta) => {
   console.log("webhoook------------------------------------------")
-  console.log(requisicao.body);
   webhookbody = requisicao.body;
   
   let nomeEmpresa = requisicao.body.payload.questions_and_answers.find((q) => q.question == 'Empresa').answer;
@@ -467,19 +473,48 @@ app.listen(process.env.PORT || 3000, () => {
 //});
 
 
-app.get('/form/', (req, res) => {
-  res.append('Warning', '199 Miscellaneous warning 1111')
-    res.sendFile(__dirname + '/views/form.html');
-    res.append('Warning', '199 Miscellaneous warning 2222')
-    //es.send("<script>alert('teste');</script>");
-    
+app.get('/cnpjLocator', (req, res) => {
 
-    console.debug('get do form');
+  let charValidos = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9' ]
+
+  
+
+    let endereco = req.query.url;
+ 
+  fetch(endereco).then(resposta => resposta.text()).then(result => { 
+    
+    //console.log(result);
+    let mascara = result.match(/\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}/);
    
+    if (mascara == null) {
+
+        let posicao = result.toLowerCase().indexOf('cnpj');
+        if (posicao != -1) {
+            posicao = posicao +5;
+        }
+        let stringCNPJ = [];
+        for (let icont = 0; icont < 30; icont++) {
+            let caracter = result.substring(posicao+icont, posicao+icont+1);
+            if (charValidos.indexOf(caracter) > -1) {
+              stringCNPJ.push(caracter);
+              if (stringCNPJ.length == 14) break
+            }
+        }
+        if (stringCNPJ.length == 14) {
+          res.status(201).send(stringCNPJ.join('').replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5"));
+        }
+
+        
+    } else {
+      res.status(201).send(mascara[0]);
+    }
     
+        
+    }).catch(error => {console.error(error)
+      res.status(404).send();
+    });
 
-});
-
+})
   
 
 function cleanCompanyName(texto) {
@@ -603,25 +638,15 @@ const storage = {
     site.then((a) => {
      const results = a.analyze()
       results.then((obj) => {
+
+
+        obj.technologies  = traduzCart(obj.technologies);
+        obj.title = page.title;
+        obj.cnpjSite = page.cnpj;
+          obj.totvsOffers = geraOfertasTOTVS(obj);
+          obj.ecommerce = geraEcommerce(obj).toString() ;
         
-        fetch(url)
-          .then(resp => resp.text()) // parse response's body as text
-          .then(body => parsePage(body, url)) // extract <title> from body
-          .then(page => { obj.technologies  = traduzCart(obj.technologies);
-                          obj.title = page.title;
-                          obj.cnpjSite = page.cnpj;
-                           obj.totvsOffers = geraOfertasTOTVS(obj);
-                           obj.ecommerce = geraEcommerce(obj).toString() ;
-                           
-                          res.status(201). send(obj);
-                         }) // send the result back
-          .catch(e => { 
-            //obj.totvsOffers = geraOfertasTOTVS(obj);
-            //obj.ecommerce = geraEcommerce(obj).toString() ;
-            console.debug('erro da busca de pagina');
-            console.debug(e);
-            res.status(404). send("Erro de busca da pagina");
-           }) // catch possible errors
+         // catch possible errors
          
           })   
    }).catch(e => { 
