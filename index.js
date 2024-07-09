@@ -76,12 +76,7 @@ const options = {
 
  let wappalyzer;
  
- try {
-  wappalyzer = new Wappalyzer(options)
-  wappalyzer.init()
- } catch(wappaerror) {
-   console.log("Wappalizer não pode ser iniciado nesta maquina");
- }
+
 // Optionally set additional request headers
 const headers = {}
 
