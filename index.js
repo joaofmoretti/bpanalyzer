@@ -1443,3 +1443,8 @@ app.get('/colaboradores/:nomeEmpresa', (req, res) => {
   app.get('/stylecons.css', (req, res) => {
     res.sendFile(__dirname + '/views/stylecons.css'); 
   });
+
+  app.get('/mentor', (req, res) => {
+    
+    res.sendFile(__dirname + '/views/form.html');
+  });
