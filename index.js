@@ -413,8 +413,8 @@ app.get('/apexcharts.min.js', (req, res) => {
   res.sendFile(__dirname + '/views/apexcharts.min.js'); 
 });
 
-app.get('/bishop-94180.mp4', (req, res) => {
-  res.sendFile(__dirname + '/views/bishop-94180.mp4'); 
+app.get('/bishop-9418000.jpg', (req, res) => {
+  res.sendFile(__dirname + '/views/bishop-9418000.jpg'); 
 });
 
 app.get('/icon_38.png', (req, res) => {
