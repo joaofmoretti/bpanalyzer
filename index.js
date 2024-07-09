@@ -74,9 +74,14 @@ const options = {
   noRedirect: false,
 };
 
-  
-const wappalyzer = new Wappalyzer(options)
-wappalyzer.init()
+ let wappalyzer;
+ 
+ try {
+  wappalyzer = new Wappalyzer(options)
+  wappalyzer.init()
+ } catch(wappaerror) {
+   console.log("Wappalizer não pode ser iniciado nesta maquina");
+ }
 // Optionally set additional request headers
 const headers = {}
 
@@ -632,7 +637,10 @@ app.post('/wservice/', encodeUrl, (req, res) => {
   
   try {
 
-
+    if (wappalyzer == null || wappalyzer == undefined) {
+        wappalyzer = new Wappalyzer(options)
+        wappalyzer.init();
+    }
     const site = wappalyzer.open(url, headers, storage)
     // Optionally capture and output errors
     //site.on('error', console.error)
