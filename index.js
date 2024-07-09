@@ -1,13 +1,16 @@
 const Wappalyzer = require('wappalyzer')
+const {execFile} = require('child_process');
 const cors = require('cors');
 
 
 
-//const fs = require('fs');
-//const key = fs.readFileSync('./ca/servidor.decrypted.key');
-//const cert = fs.readFileSync('./ca/servidor.crt');
+const fs = require('fs');
+const key = fs.readFileSync('./cert/privatekey.key');
+const cert = fs.readFileSync('./cert/certificate.crt');
+var credentials = {key: key, cert: cert};
 
-//const https = require('https');
+const https = require('https');
+const http = require('http');
 
 let express = require('express'); 
 let bodyParser = require('body-parser');
@@ -72,31 +75,22 @@ const options = {
 };
 
   
+const wappalyzer = new Wappalyzer(options)
+wappalyzer.init()
+// Optionally set additional request headers
+const headers = {}
+
+// Optionally set local and/or session storage
+const storage = {
+  local: {}
+  
+}
+
+const { exec } = require("child_process");
+const { throws } = require('assert');
 
 
 const parsePage = (body, url) => {
-  
- 
-  
-  
-  let cnpj = ''
-  try {
-    console.log("cnpjs o ponto magico again");
-   
-    let conjunto = body.match(/\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}/);
-
-
-    console.log(conjunto);
-
-    cnpj = body.match(/\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}/)[0];
-  } catch (err) {console.log(err)}
-  if (cnpj != '') {
-    console.debug('cnpjX ' + cnpj);
-    
-  } else {
-    console.debug('cnpjX nao achou');
-  }
-
   let match = body.match(/<title>([^<]*)<\/title>/)  // regular expression to parse contents of the <title> tag
 
   if (!match || typeof match[1] !== 'string') {
@@ -110,9 +104,18 @@ const parsePage = (body, url) => {
     throw new Error('Unable to parse the title tag')
   }
   tituloPagina = match[1];
-  //console.debug('match[1] ' + match[1])
+  console.debug('match[1] ' + match[1])
 
-
+  let cnpj = ''
+  try {
+    cnpj = body.match(/\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}/)[0];
+  } catch (err) {}
+  if (cnpj != '') {
+    console.debug('cnpjX ' + cnpj);
+    
+  } else {
+    console.debug('cnpjX nao achou');
+  }
 
   pagina.url = url
   pagina.title = tituloPagina
@@ -123,6 +126,15 @@ const parsePage = (body, url) => {
 
 let webhookbody;
 let webhookresponse;
+
+let cases; 
+
+try {
+  cases = require("./data/cases.json");
+} catch(erroReadingCasesFile) {
+  console.log("erroReadingCasesFile");
+  console.log(erroReadingCasesFile);
+}
 
 app.get('/loginURL/', (req, res) => {
 
@@ -401,8 +413,8 @@ app.get('/apexcharts.min.js', (req, res) => {
   res.sendFile(__dirname + '/views/apexcharts.min.js'); 
 });
 
-app.get('/bishop-9418000.jpg', (req, res) => {
-  res.sendFile(__dirname + '/views/bishop-9418000.jpg'); 
+app.get('/bishop-94180.mp4', (req, res) => {
+  res.sendFile(__dirname + '/views/bishop-94180.mp4'); 
 });
 
 app.get('/icon_38.png', (req, res) => {
@@ -461,16 +473,16 @@ app.get('/RDStation.png', (req, res) => {
   res.sendFile(__dirname + '/views/RDStation.png'); 
 });
 
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
 app.listen(process.env.PORT || 3000, () => {
     console.debug("Aplicação de subiu na porta 3000");
 });
 
-//const server = https.createServer({ key, cert }, app);
+//var httpServer = http.createServer(app);
+//var httpsServer = https.createServer(credentials, app);
 
-//const port = 3000;
-//server.listen(port, () => {
-  //console.debug('Servidor está rodando com https na porta 3000');
-//});
+//httpServer.listen(8080);
+//httpsServer.listen(8443);
 
 
 app.get('/cnpjLocator', (req, res) => {
@@ -604,16 +616,6 @@ app.post('/dadosEmpodera/', encodeUrl, (req, res) => {
 
 app.post('/wservice/', encodeUrl, (req, res) => {
   
-  const wappalyzer = new Wappalyzer(options)
-wappalyzer.init()
-// Optionally set additional request headers
-const headers = {}
-
-// Optionally set local and/or session storage
-const storage = {
-  local: {}
-  
-}
   
   url = req.body.busca;
   console.debug(req.body);
@@ -703,8 +705,8 @@ app.post('/prospectaSite/', encodeUrl, (req, res) => {
           body: raw,
           redirect: 'follow'
         };
-        fetch("http://179.223.163.23:3000/wservice", opcoesDeRequisicao)
-        //fetch("http://localhost:3000/wservice", opcoesDeRequisicao)
+        //fetch("http://179.223.163.23:3000/wservice", opcoesDeRequisicao)
+        fetch("https://localhost:8443/wservice", opcoesDeRequisicao)
         .then(response => response.json())  // converter para json
         .then(json => {res.send(json);})    //imprimir dados no console
         .catch(err => {console.debug('Erro de solicitação no serviço de prospecção', err);
@@ -1103,8 +1105,7 @@ function geraEcommerce(obj) {
 
     if (obj.technologies[icont].categories[0].id == 6) {
 
-            console.log('obj.technologies[icont]');
-            console.log(obj.technologies[icont]);
+            
       
             ecoms.push(obj.technologies[icont].name);
         
@@ -1267,4 +1268,175 @@ app.get('/colaboradores/:nomeEmpresa', (req, res) => {
     return techs;
   }
 
+  app.post('/mentorwebhook/', encodeUrl, (requisicao, resposta) => {
+    
+    console.log("mentor --------------------------------------------");
+  console.log(requisicao.body);
+  console.log("fim do body mentor --------------------------------------------");
+  var myHeaders = new Headers();
+  myHeaders.append("Content-Type", "application/json");
+  myHeaders.append("Authorization", "Bearer eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiYXBpIiwicHJvcGVydGllcyI6eyJrZXlJZCI6ImtleV8wMUhLV0RBNFpOWjJZMktaQTM5OVJWWk1LMSIsIndvcmtzcGFjZUlkIjoid3BjXzAxSEtTWVBOSEtIMDIzNzYwVkJXV1dOUlA3IiwidXNlcklkIjoidXNlcl9hcGkifSwiaWF0IjoxNzA0OTgxNzYzfQ.RYKjA9vaOUWg4RW4qX99wVs0brKs1dVpr0xA-6xJt_YpEC_0ohwWJ-stT0gNT2ahTMkjAl9qkBXF2Nk1c4Jy5wZ9otlcMAnkMlnJvmBw_eksrmKSUjKHpLVGQCMhQd8gT9QG0S0hPXwHzu7iNUWa7Fc0Ziwlkd43yCunScNkYVDBw0LeHsiSaiCmNyhKtutqzoQ_I09lXCaj7cjbLvPTFZUsdZoZcxmqf4ofVBAENo_0uBf3JWdNV27EDzdLsM6pWTRGR_Z5gWdINWhMyF56jq-b3WQz6UNbWJqnU3WAlxHMsRHGW3r8CDdp5OcU3m45InyY29HAWlxpZjOLmZa6oQ");
+  
+  var raw = JSON.stringify({
+    "0": {
+      "json": {
+        "promptId": "question_answer",
+        "data": {
+          "question": requisicao.body.pergunta
+        },
+        "kbs": []
+      }
+    }
+  });
+  
+  var requestOptions = {
+    method: 'POST',
+    headers: myHeaders,
+    body: raw,
+    redirect: 'follow'
+  };
+  
+  fetch("https://api.conteudo.rdstationmentoria.com.br/trpc/copywriting.create?batch=1", requestOptions)
+    .then(response => response.text())
+    .then(result => {//console.log(result)
+    
+    let resultMentor = JSON.parse(result);
+    
+    let respostaMentor = {
+      "resposta": resultMentor[0].result.data.json.content
+    }
+      resposta.status(200).send(respostaMentor);
+    } )
+    .catch(error => {
+        console.log('error', error) 
+        resposta.status(404).send(error); 
+      });
+})
 
+
+
+  function prepararCases(cases) {
+
+    for (var contadoCase = 0; contadoCase < cases.length; contadoCase++) {
+        var caseBP = cases[contadoCase];
+		    caseBP['codigo'] = contadoCase + 1;
+        if (caseBP['Solução'] != undefined) {
+          caseBP['Solução'] = caseBP['Solução'].trim();
+        }
+
+        if (caseBP['Segmento'] != undefined) {
+          caseBP['Segmento'] = caseBP['Segmento'].trim();
+
+        }
+        
+        
+        if (caseBP['Agências'] != undefined) {
+          caseBP['Agências'] = caseBP['Agências'].trim();
+        }
+
+        if (caseBP['Cliente TOTVS'] != undefined) {
+          if (caseBP['Cliente TOTVS'].toLowerCase().indexOf('s') > -1) {
+            caseBP['Cliente TOTVS'] = true;
+          } else {
+            caseBP['Cliente TOTVS'] = false;
+          }
+        
+        } else {
+          caseBP['Cliente TOTVS'] = false;
+        }
+    }    
+    return cases;
+
+}
+
+  app.post('/atualizaCases/', encodeUrl, (requisicao, resposta) => {
+      console.log(requisicao.body);
+      let jsoncases = requisicao.body;
+      try {
+      cases = prepararCases(jsoncases);
+      fs.writeFileSync( "./data/cases.json", JSON.stringify( cases ));
+      } catch(errorCases) {
+        console.log(errorCases);
+        resposta.status(400).send(errorCases);  
+      }
+      resposta.status(201).send(cases);
+  } )
+
+
+  app.get('/cases', (req, res) => {
+    res.send(cases);
+  })   
+
+
+  app.get('/paginaCases', (req, res) => {
+
+    let solucoes = [...new Set(cases.map(({Solução})=>Solução))];
+    let segmentos = [...new Set(cases.map(({Segmento})=>Segmento))];  
+
+    solucoes.pop('undefined');
+
+    var resultado = [];
+    resultado.push("<title> Faq de cases Digital Commerce</title>")
+    resultado.push("<h2> Faq de cases Digital Commerce</h2>")
+    
+    
+    
+    for(let icont=0; icont<solucoes.length; icont++) {
+      let solucao = solucoes[icont];
+      resultado.push("<br><br>");
+      resultado.push("<b>Quais são os cases de ");
+      resultado.push(solucao);
+      resultado.push(" que temos ?")
+      resultado.push("<br><br></b>");
+
+      for (const prop in cases) {
+        if (cases[prop]["Solução"] == solucao && cases[prop]["Empresa"] != undefined ) {
+          resultado.push("Case: " + cases[prop]["Empresa"] + " , segmento: " + cases[prop]["Segmento"] + " , site: " + cases[prop]["Site"] + "<br>");
+        }
+      }
+
+    }
+
+    for(let icont=0; icont<segmentos.length; icont++) {
+      let segmento = segmentos[icont];
+
+      if (cases.filter(cs => cs.Segmento == segmento).length > 0) {
+        resultado.push("<br><br>");
+        resultado.push("<b>Quais são os cases de ");
+        resultado.push(segmento);
+        resultado.push(" que temos ?")
+        resultado.push("</b><br><br>");
+
+        for (const prop in cases) {
+          if (cases[prop]["Segmento"] == segmento && cases[prop]["Empresa"] != undefined ) {
+            resultado.push("Case: " + cases[prop]["Empresa"] + " , solução: " + cases[prop]["Solução"] + " , site: " + cases[prop]["Site"] + "<br>");
+          }
+        }
+      }
+
+    }
+
+    res.send(resultado.join(""));
+  })
+
+  app.get('/cases/consulta', (req, res) => {
+    
+    res.sendFile(__dirname + '/views/consultacases.html');
+  });
+
+  app.get('/tabulator.min.css', (req, res) => {
+    res.sendFile(__dirname + '/views/libs/tabulator.min.css'); 
+  });
+  
+  app.get('/tabulator.min.js', (req, res) => {
+    res.sendFile(__dirname + '/views/libs/tabulator.min.js'); 
+  });
+
+  app.get('/luxon.min.js', (req, res) => {
+    res.sendFile(__dirname + '/views/libs/luxon.min.js'); 
+  
+  });
+  
+  app.get('/stylecons.css', (req, res) => {
+    res.sendFile(__dirname + '/views/stylecons.css'); 
+  });
