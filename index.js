@@ -1425,15 +1425,15 @@ app.get('/colaboradores/:nomeEmpresa', (req, res) => {
   });
 
   app.get('/tabulator.min.css', (req, res) => {
-    res.sendFile(__dirname + '/views/libs/tabulator.min.css'); 
+    res.sendFile(__dirname + '/views/tabulator.min.css'); 
   });
   
   app.get('/tabulator.min.js', (req, res) => {
-    res.sendFile(__dirname + '/views/libs/tabulator.min.js'); 
+    res.sendFile(__dirname + '/views/tabulator.min.js'); 
   });
 
   app.get('/luxon.min.js', (req, res) => {
-    res.sendFile(__dirname + '/views/libs/luxon.min.js'); 
+    res.sendFile(__dirname + '/views/luxon.min.js'); 
   
   });
   
