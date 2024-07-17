@@ -147,7 +147,7 @@ app.get('/applicationURL/', (req, res) => {
   //http://179.223.163.23:3123/business-commerce-plugin/
   //https://business-commerce-system.onrender.com/business-commerce-plugin
   
-    res.status(200).send("https://business-commerce-system-5c4s.onrender.com/business-commerce-plugin");
+    res.status(200).send("https://business-commerce-system-mu2r.onrender.com/business-commerce-plugin");
   
 }); 
 
